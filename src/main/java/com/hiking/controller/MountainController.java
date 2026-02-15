@@ -22,12 +22,24 @@ public class MountainController {
 
     @GetMapping("/{id}")
     public MountainDTO getMountain(@PathVariable Long id) {
-        return mountainService.getMountainById(id);
+        return mountainService.getById(id);
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public MountainDTO createMountain(@RequestBody MountainDTO dto) {
-        return mountainService.createMountain(dto);
+        return mountainService.create(dto);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public MountainDTO updateMountain(@PathVariable Long id, @RequestBody MountainDTO dto) {
+        return mountainService.update(id, dto);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteMountain(@PathVariable Long id) {
+        mountainService.delete(id);
     }
 }

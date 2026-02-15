@@ -20,14 +20,26 @@ public class HutController {
         return hutService.getAllHuts();
     }
 
-    @GetMapping("/mountain/{name}")
-    public List<HutDTO> getHutsByMountain(@PathVariable String name) {
-        return hutService.getHutsByMountain(name);
+    @GetMapping("/{id}")
+    public HutDTO getHut(@PathVariable Long id) {
+        return hutService.getById(id);
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public HutDTO createHut(@RequestBody HutDTO dto) {
-        return hutService.createHut(dto);
+        return hutService.create(dto);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public HutDTO updateHut(@PathVariable Long id, @RequestBody HutDTO dto) {
+        return hutService.update(id, dto);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteHut(@PathVariable Long id) {
+        hutService.delete(id);
     }
 }

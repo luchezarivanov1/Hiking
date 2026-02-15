@@ -13,6 +13,7 @@ public class HikingRouteDTO {
     private Integer durationMin;
     private String difficulty;
     private String description;
-
-    private List<RoutePhotoDTO> photos;
+    private List<Long> hutIds;
+    private List<Long> photoIds;
+    private List<Long> waypointIds;
 }

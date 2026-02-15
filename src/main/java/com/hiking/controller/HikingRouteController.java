@@ -23,24 +23,24 @@ public class HikingRouteController {
 
     @GetMapping("/{id}")
     public HikingRouteDTO getRoute(@PathVariable Long id) {
-        return routeService.getRouteById(id);
+        return routeService.getById(id);
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public HikingRouteDTO createRoute(@RequestBody HikingRouteDTO dto) {
-        return routeService.createRoute(dto);
+        return routeService.create(dto);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public HikingRouteDTO updateRoute(@PathVariable Long id, @RequestBody HikingRouteDTO dto) {
-        return routeService.updateRoute(id, dto);
+        return routeService.update(id, dto);
     }
 
-    @PostMapping("/{id}/photos")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public RoutePhotoDTO addPhoto(@PathVariable Long id, @RequestBody RoutePhotoDTO dto) {
-        return routeService.addPhoto(id, dto);
+    public void deleteRoute(@PathVariable Long id) {
+        routeService.delete(id);
     }
 }

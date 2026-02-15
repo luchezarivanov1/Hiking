@@ -6,6 +6,6 @@ import lombok.Data;
 public class MountainDTO {
     private Long id;
     private String name;
-    private String country;
-    private Integer maxHeight;
+    private String region;
+    private Double highestPeak;
 }

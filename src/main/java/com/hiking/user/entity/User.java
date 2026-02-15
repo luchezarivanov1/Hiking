@@ -1,5 +1,6 @@
-package com.hiking.entity;
+package com.hiking.user.entity;
 
+import com.hiking.entity.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,9 +29,11 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    private String experienceLevel;
-
+    private String experienceLevel; // Beginner / Intermediate / Advanced
     private String profileImageUrl;
+
+    private Double totalDistanceKm;
+    private Integer totalHikesCompleted;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -40,4 +43,13 @@ public class User {
     )
     @Builder.Default
     private List<Role> roles = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_friends",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "friend_id")
+    )
+    @Builder.Default
+    private List<User> friends = new ArrayList<>();
 }

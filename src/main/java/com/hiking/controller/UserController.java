@@ -1,6 +1,6 @@
 package com.hiking.controller;
 
-import com.hiking.dto.UserDTO;
+import com.hiking.user.dto.UserDTO;
 import com.hiking.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;

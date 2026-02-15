@@ -3,7 +3,7 @@ package com.hiking.service;
 import com.hiking.dto.LandmarkDTO;
 import com.hiking.entity.HikingRoute;
 import com.hiking.entity.Landmark;
-import com.hiking.entity.LandmarkType;
+import com.hiking.entity.LandmarkPhoto;
 import com.hiking.entity.Mountain;
 import com.hiking.repository.HikingRouteRepository;
 import com.hiking.repository.LandmarkRepository;
@@ -22,68 +22,68 @@ public class LandmarkService {
     private final LandmarkRepository landmarkRepo;
     private final MountainRepository mountainRepo;
     private final HikingRouteRepository routeRepo;
-    private final ModelMapper modelMapper;
+    private final ModelMapper mapper;
 
     public List<LandmarkDTO> getAllLandmarks() {
         return landmarkRepo.findAll().stream()
                 .map(this::mapToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    // Get all landmarks for a mountain with optional filtering
-    public List<LandmarkDTO> getLandmarks(Long mountainId, LandmarkType type, String searchName, String searchLocation) {
-        Mountain mountain = mountainRepo.findById(mountainId)
-                .orElseThrow(() -> new RuntimeException("Mountain not found"));
+    public LandmarkDTO getById(Long id) {
+        var landmark = landmarkRepo.findById(id).orElseThrow(() -> new RuntimeException("Landmark not found"));
+        return mapToDTO(landmark);
+    }
 
-        List<Landmark> landmarks;
-
-        if (type != null && searchName != null && !searchName.isEmpty()) {
-            landmarks = landmarkRepo.findByMountainAndTypeAndNameContainingIgnoreCase(mountain, type, searchName);
-        } else if (type != null && searchLocation != null && !searchLocation.isEmpty()) {
-            landmarks = landmarkRepo.findByMountainAndTypeAndLocationContainingIgnoreCase(mountain, type, searchLocation);
-        } else if (type != null) {
-            landmarks = landmarkRepo.findByMountainAndType(mountain, type);
-        } else if (searchName != null && !searchName.isEmpty()) {
-            landmarks = landmarkRepo.findByMountainAndNameContainingIgnoreCase(mountain, searchName);
-        } else if (searchLocation != null && !searchLocation.isEmpty()) {
-            landmarks = landmarkRepo.findByMountainAndLocationContainingIgnoreCase(mountain, searchLocation);
-        } else {
-            landmarks = landmarkRepo.findByMountain(mountain);
+    public LandmarkDTO create(LandmarkDTO dto) {
+        var landmark = mapper.map(dto, Landmark.class);
+        if (dto.getMountainId() != null) {
+            var mountain = mountainRepo.findById(dto.getMountainId())
+                    .orElseThrow(() -> new RuntimeException("Mountain not found"));
+            landmark.setMountain(mountain);
         }
-
-        return landmarks.stream().map(this::mapToDTO).collect(Collectors.toList());
-    }
-
-    public List<LandmarkDTO> getLandmarksByMountain(Long mountainId) {
-        return getLandmarks(mountainId, null, null, null);
-    }
-
-    public LandmarkDTO createLandmark(LandmarkDTO dto) {
-        Mountain mountain = mountainRepo.findById(dto.getMountainId())
-                .orElseThrow(() -> new RuntimeException("Mountain not found"));
-
-        HikingRoute route = null;
-        if (dto.getRouteId() != null) {
-            route = routeRepo.findById(dto.getRouteId())
+        if (dto.getHikingRouteId() != null) {
+            var route = routeRepo.findById(dto.getHikingRouteId())
                     .orElseThrow(() -> new RuntimeException("Route not found"));
+            landmark.setHikingRoute(route);
         }
-
-        Landmark landmark = new Landmark();
-        landmark.setName(dto.getName());
-        landmark.setType(dto.getType());
-        landmark.setDescription(dto.getDescription());
-        landmark.setLocation(dto.getLocation());
-        landmark.setMountain(mountain);
-        landmark.setRoute(route);
-
-        Landmark saved = landmarkRepo.save(landmark);
+        var saved = landmarkRepo.save(landmark);
         return mapToDTO(saved);
     }
 
+    public LandmarkDTO update(Long id, LandmarkDTO dto) {
+        var landmark = landmarkRepo.findById(id).orElseThrow(() -> new RuntimeException("Landmark not found"));
+        mapper.map(dto, landmark);
+        landmark.setId(id);
+        if (dto.getMountainId() != null) {
+            var mountain = mountainRepo.findById(dto.getMountainId())
+                    .orElseThrow(() -> new RuntimeException("Mountain not found"));
+            landmark.setMountain(mountain);
+        }
+        if (dto.getHikingRouteId() != null) {
+            var route = routeRepo.findById(dto.getHikingRouteId())
+                    .orElseThrow(() -> new RuntimeException("Route not found"));
+            landmark.setHikingRoute(route);
+        }
+        var updated = landmarkRepo.save(landmark);
+        return mapToDTO(updated);
+    }
+
+    public void delete(Long id) {
+        landmarkRepo.deleteById(id);
+    }
+
     private LandmarkDTO mapToDTO(Landmark landmark) {
-        LandmarkDTO dto = modelMapper.map(landmark, LandmarkDTO.class);
-        dto.setMountainId(landmark.getMountain().getId());
-        if (landmark.getRoute() != null) dto.setRouteId(landmark.getRoute().getId());
+        var dto = mapper.map(landmark, LandmarkDTO.class);
+        if (landmark.getMountain() != null) {
+            dto.setMountainId(landmark.getMountain().getId());
+        }
+        if (landmark.getHikingRoute() != null) {
+            dto.setHikingRouteId(landmark.getHikingRoute().getId());
+        }
+        if (landmark.getPhotos() != null) {
+            dto.setPhotoIds(landmark.getPhotos().stream().map(LandmarkPhoto::getId).toList());
+        }
         return dto;
     }
 }

@@ -6,9 +6,10 @@ import lombok.Data;
 public class HutDTO {
     private Long id;
     private String name;
-    private String mountain;
-    private String location;
-    private Integer beds;
-    private Boolean hasRestaurant;
+    private String address;
+    private Integer capacity;
+    private Boolean openYearRound;
+    private Long mountainId;
     private Long routeId;
+    private Double rating; // average rating
 }

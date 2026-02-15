@@ -15,26 +15,34 @@ import java.util.stream.Collectors;
 public class MountainService {
 
     private final MountainRepository mountainRepo;
-    private final ModelMapper modelMapper;
+    private final ModelMapper mapper;
 
     public List<MountainDTO> getAllMountains() {
         return mountainRepo.findAll().stream()
-                .map(m -> modelMapper.map(m, MountainDTO.class))
-                .collect(Collectors.toList());
+                .map(m -> mapper.map(m, MountainDTO.class))
+                .toList();
     }
 
-    public MountainDTO getMountainById(Long id) {
-        Mountain mountain = mountainRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Mountain not found"));
-        return modelMapper.map(mountain, MountainDTO.class);
+    public MountainDTO getById(Long id) {
+        var mountain = mountainRepo.findById(id).orElseThrow(() -> new RuntimeException("Mountain not found"));
+        return mapper.map(mountain, MountainDTO.class);
     }
 
-    public MountainDTO createMountain(MountainDTO dto) {
-        if (mountainRepo.existsByName(dto.getName())) {
-            throw new RuntimeException("Mountain already exists");
-        }
-        Mountain mountain = modelMapper.map(dto, Mountain.class);
-        Mountain saved = mountainRepo.save(mountain);
-        return modelMapper.map(saved, MountainDTO.class);
+    public MountainDTO create(MountainDTO dto) {
+        var mountain = mapper.map(dto, Mountain.class);
+        var saved = mountainRepo.save(mountain);
+        return mapper.map(saved, MountainDTO.class);
+    }
+
+    public MountainDTO update(Long id, MountainDTO dto) {
+        var mountain = mountainRepo.findById(id).orElseThrow(() -> new RuntimeException("Mountain not found"));
+        mapper.map(dto, mountain);
+        mountain.setId(id);
+        var updated = mountainRepo.save(mountain);
+        return mapper.map(updated, MountainDTO.class);
+    }
+
+    public void delete(Long id) {
+        mountainRepo.deleteById(id);
     }
 }

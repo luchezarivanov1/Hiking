@@ -1,11 +1,9 @@
 package com.hiking.service;
 
 import com.hiking.dto.HikingRouteDTO;
-import com.hiking.dto.RoutePhotoDTO;
-import com.hiking.entity.HikingRoute;
-import com.hiking.entity.RoutePhoto;
+import com.hiking.entity.*;
 import com.hiking.repository.HikingRouteRepository;
-import com.hiking.repository.RoutePhotoRepository;
+import com.hiking.repository.MountainRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -18,67 +16,62 @@ import java.util.stream.Collectors;
 public class HikingRouteService {
 
     private final HikingRouteRepository routeRepo;
-    private final RoutePhotoRepository photoRepo;
-    private final ModelMapper modelMapper;
+    private final MountainRepository mountainRepo;
+    private final ModelMapper mapper;
 
     public List<HikingRouteDTO> getAllRoutes() {
         return routeRepo.findAll().stream()
                 .map(this::mapToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    public HikingRouteDTO getRouteById(Long id) {
-        HikingRoute route = routeRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Route not found"));
+    public HikingRouteDTO getById(Long id) {
+        var route = routeRepo.findById(id).orElseThrow(() -> new RuntimeException("Route not found"));
         return mapToDTO(route);
     }
 
-    public HikingRouteDTO createRoute(HikingRouteDTO dto) {
-        HikingRoute route = modelMapper.map(dto, HikingRoute.class);
-        HikingRoute saved = routeRepo.save(route);
+    public HikingRouteDTO create(HikingRouteDTO dto) {
+        var route = mapper.map(dto, HikingRoute.class);
+        if (dto.getMountainId() != null) {
+            Mountain mountain = mountainRepo.findById(dto.getMountainId())
+                    .orElseThrow(() -> new RuntimeException("Mountain not found"));
+            route.setMountain(mountain);
+        }
+        var saved = routeRepo.save(route);
         return mapToDTO(saved);
     }
 
-    public HikingRouteDTO updateRoute(Long id, HikingRouteDTO dto) {
-        HikingRoute route = routeRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Route not found"));
-
-        // update fields
-        route.setName(dto.getName());
-        route.setDistanceKm(dto.getDistanceKm());
-        route.setDurationMin(dto.getDurationMin());
-        route.setDifficulty(dto.getDifficulty());
-        route.setDescription(dto.getDescription());
-
-        HikingRoute updated = routeRepo.save(route);
+    public HikingRouteDTO update(Long id, HikingRouteDTO dto) {
+        var route = routeRepo.findById(id).orElseThrow(() -> new RuntimeException("Route not found"));
+        mapper.map(dto, route);
+        route.setId(id);
+        if (dto.getMountainId() != null) {
+            Mountain mountain = mountainRepo.findById(dto.getMountainId())
+                    .orElseThrow(() -> new RuntimeException("Mountain not found"));
+            route.setMountain(mountain);
+        }
+        var updated = routeRepo.save(route);
         return mapToDTO(updated);
     }
 
-    public RoutePhotoDTO addPhoto(Long routeId, RoutePhotoDTO dto) {
-        HikingRoute route = routeRepo.findById(routeId)
-                .orElseThrow(() -> new RuntimeException("Route not found"));
-
-        RoutePhoto photo = new RoutePhoto();
-        photo.setHikingRoute(route);
-        photo.setUrl(dto.getUrl());
-        photo.setDescription(dto.getDescription());
-
-        RoutePhoto saved = photoRepo.save(photo);
-        RoutePhotoDTO photoDTO = modelMapper.map(saved, RoutePhotoDTO.class);
-        photoDTO.setRouteId(routeId);
-        return photoDTO;
+    public void delete(Long id) {
+        routeRepo.deleteById(id);
     }
 
     private HikingRouteDTO mapToDTO(HikingRoute route) {
-        HikingRouteDTO dto = modelMapper.map(route, HikingRouteDTO.class);
-        List<RoutePhotoDTO> photos = photoRepo.findByHikingRoute(route).stream()
-                .map(photo -> {
-                    RoutePhotoDTO p = modelMapper.map(photo, RoutePhotoDTO.class);
-                    p.setRouteId(route.getId());
-                    return p;
-                })
-                .collect(Collectors.toList());
-        dto.setPhotos(photos);
+        HikingRouteDTO dto = mapper.map(route, HikingRouteDTO.class);
+        if (route.getMountain() != null) {
+            dto.setMountainId(route.getMountain().getId());
+        }
+        if (route.getHuts() != null) {
+            dto.setHutIds(route.getHuts().stream().map(Hut::getId).toList());
+        }
+        if (route.getPhotos() != null) {
+            dto.setPhotoIds(route.getPhotos().stream().map(RoutePhoto::getId).toList());
+        }
+        if (route.getWaypoints() != null) {
+            dto.setWaypointIds(route.getWaypoints().stream().map(RouteWaypoint::getId).toList());
+        }
         return dto;
     }
 }

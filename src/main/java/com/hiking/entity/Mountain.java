@@ -8,7 +8,6 @@ import java.util.Set;
 
 @Entity
 @Data
-@NoArgsConstructor
 public class Mountain {
 
     @Id
@@ -16,12 +15,15 @@ public class Mountain {
     private Long id;
 
     private String name;
-    private String country; // optional if you later expand
-    private Integer maxHeight; // meters
+    private String region;
+    private Double highestPeak;
 
-    @OneToMany(mappedBy = "mountain", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "mountain")
+    private Set<HikingRoute> routes;
+
+    @OneToMany(mappedBy = "mountain")
     private Set<Hut> huts;
 
-    @OneToMany(mappedBy = "mountain", cascade = CascadeType.ALL)
-    private Set<Review> reviews;
+    @OneToMany(mappedBy = "mountain")
+    private Set<Landmark> landmarks;
 }

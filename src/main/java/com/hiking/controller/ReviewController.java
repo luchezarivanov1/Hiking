@@ -16,16 +16,28 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @GetMapping("/mountain/{mountainId}")
-    public List<ReviewDTO> getReviews(@PathVariable Long mountainId) {
-        return reviewService.getReviewsForMountain(mountainId);
+    @GetMapping
+    public List<ReviewDTO> getAllReviews() {
+        return reviewService.getAllReviews();
     }
 
-    @PostMapping("/mountain/{mountainId}")
-    public ReviewDTO addReview(@PathVariable Long mountainId,
-                               @RequestBody ReviewDTO dto,
-                               Authentication authentication) {
-        String email = ((UserDetails) authentication.getPrincipal()).getUsername();
-        return reviewService.addReview(mountainId, email, dto);
+    @GetMapping("/{id}")
+    public ReviewDTO getReview(@PathVariable Long id) {
+        return reviewService.getById(id);
+    }
+
+    @PostMapping
+    public ReviewDTO createReview(@RequestBody ReviewDTO dto) {
+        return reviewService.create(dto);
+    }
+
+    @PutMapping("/{id}")
+    public ReviewDTO updateReview(@PathVariable Long id, @RequestBody ReviewDTO dto) {
+        return reviewService.update(id, dto);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteReview(@PathVariable Long id) {
+        reviewService.delete(id);
     }
 }

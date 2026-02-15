@@ -1,6 +1,6 @@
 package com.hiking.security;
 
-import com.hiking.entity.User;
+import com.hiking.user.entity.User;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;

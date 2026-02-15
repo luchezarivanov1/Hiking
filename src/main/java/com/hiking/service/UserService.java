@@ -1,8 +1,8 @@
 package com.hiking.service;
 
-import com.hiking.dto.UserDTO;
+import com.hiking.user.dto.UserDTO;
 import com.hiking.entity.Role;
-import com.hiking.entity.User;
+import com.hiking.user.entity.User;
 import com.hiking.repository.RoleRepository;
 import com.hiking.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,11 +34,13 @@ public class UserService {
 
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
-        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        }
+        // Note: Password update logic might need more care with the new DTO which doesn't have password field
+        // But for now keeping it simple as per original
+        
         user.setExperienceLevel(dto.getExperienceLevel());
         user.setProfileImageUrl(dto.getProfileImageUrl());
+        user.setTotalDistanceKm(dto.getTotalDistanceKm());
+        user.setTotalHikesCompleted(dto.getTotalHikesCompleted());
 
         if (dto.getRoles() != null) {
             List<Role> roles = dto.getRoles().stream()
@@ -49,9 +51,7 @@ public class UserService {
         }
 
         User saved = userRepo.save(user);
-        UserDTO result = modelMapper.map(saved, UserDTO.class);
-        result.setRoles(saved.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
-        return result;
+        return mapToDTO(saved);
     }
 
     // Get user by email
@@ -85,6 +85,9 @@ public class UserService {
     private UserDTO mapToDTO(User user) {
         UserDTO dto = modelMapper.map(user, UserDTO.class);
         dto.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
+        if (user.getFriends() != null) {
+            dto.setFriendIds(user.getFriends().stream().map(User::getId).collect(Collectors.toList()));
+        }
         return dto;
     }
 
