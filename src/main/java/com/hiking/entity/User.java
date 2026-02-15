@@ -1,4 +1,4 @@
-package com.hiking.user.entity;
+package com.hiking.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

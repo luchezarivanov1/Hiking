@@ -1,4 +1,4 @@
-package com.hiking.user.dto;
+package com.hiking.dto;
 
 import lombok.Data;
 

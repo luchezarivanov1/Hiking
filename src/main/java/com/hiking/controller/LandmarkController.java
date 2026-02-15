@@ -1,6 +1,7 @@
 package com.hiking.controller;
 
 import com.hiking.dto.LandmarkDTO;
+import com.hiking.entity.LandmarkType;
 import com.hiking.service.LandmarkService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,9 +21,15 @@ public class LandmarkController {
         return landmarkService.getAllLandmarks();
     }
 
+    // Get all landmarks for a mountain with optional filters
     @GetMapping("/mountain/{mountainId}")
-    public List<LandmarkDTO> getLandmarksByMountain(@PathVariable Long mountainId) {
-        return landmarkService.getLandmarksByMountain(mountainId);
+    public List<LandmarkDTO> getLandmarksByMountain(
+            @PathVariable Long mountainId,
+            @RequestParam(required = false) LandmarkType type,
+            @RequestParam(required = false) String searchName,
+            @RequestParam(required = false) String searchLocation
+    ) {
+        return landmarkService.getLandmarks(mountainId, type, searchName, searchLocation);
     }
 
     @PostMapping

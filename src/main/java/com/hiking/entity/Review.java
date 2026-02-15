@@ -1,6 +1,5 @@
 package com.hiking.entity;
 
-import com.hiking.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;

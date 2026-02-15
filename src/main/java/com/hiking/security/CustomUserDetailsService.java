@@ -1,7 +1,7 @@
 package com.hiking.security;
 
-import com.hiking.user.entity.User;
-import com.hiking.user.repository.UserRepository;
+import com.hiking.entity.User;
+import com.hiking.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

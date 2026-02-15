@@ -5,5 +5,14 @@ public enum LandmarkType {
     CAVE,
     PEAK,
     RIVER,
-    OTHER
+    MONASTERY,
+    NATIONAL_PARK,
+    NATURE_RESERVE,
+    ROCK_FORMATION,
+    TEMPLE,
+    CANYON,
+    CREST,
+    BEACH,
+    VOLCANO,
+    ISLAND
 }

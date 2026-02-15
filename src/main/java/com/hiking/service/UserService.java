@@ -1,10 +1,10 @@
-package com.hiking.user.service;
+package com.hiking.service;
 
-import com.hiking.user.dto.UserDTO;
-import com.hiking.user.entity.Role;
-import com.hiking.user.entity.User;
-import com.hiking.user.repository.RoleRepository;
-import com.hiking.user.repository.UserRepository;
+import com.hiking.dto.UserDTO;
+import com.hiking.entity.Role;
+import com.hiking.entity.User;
+import com.hiking.repository.RoleRepository;
+import com.hiking.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -58,20 +58,34 @@ public class UserService {
     public UserDTO getUserByEmail(String email) {
         User user = userRepo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        UserDTO dto = modelMapper.map(user, UserDTO.class);
-        dto.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
-        return dto;
+        return mapToDTO(user);
+    }
+
+    // Get user by id
+    public UserDTO getUserById(Long id) {
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return mapToDTO(user);
+    }
+
+    // Search users by username or email
+    public List<UserDTO> searchUsers(String query) {
+        return userRepo.findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(query, query).stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
     // List all users (ADMIN only)
     public List<UserDTO> getAllUsers() {
         return userRepo.findAll().stream()
-                .map(user -> {
-                    UserDTO dto = modelMapper.map(user, UserDTO.class);
-                    dto.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
-                    return dto;
-                })
+                .map(this::mapToDTO)
                 .collect(Collectors.toList());
+    }
+
+    private UserDTO mapToDTO(User user) {
+        UserDTO dto = modelMapper.map(user, UserDTO.class);
+        dto.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
+        return dto;
     }
 
     // Delete user (ADMIN only)

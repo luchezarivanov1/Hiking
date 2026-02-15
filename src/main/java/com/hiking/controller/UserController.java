@@ -1,7 +1,7 @@
-package com.hiking.user.controller;
+package com.hiking.controller;
 
-import com.hiking.user.dto.UserDTO;
-import com.hiking.user.service.UserService;
+import com.hiking.dto.UserDTO;
+import com.hiking.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -36,6 +36,20 @@ public class UserController {
     public UserDTO updateUser(@PathVariable Long id, @RequestBody UserDTO dto) {
         dto.setId(id);
         return userService.saveOrUpdateUser(dto);
+    }
+
+    // Get user by ID (ADMIN only)
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserDTO getUser(@PathVariable Long id) {
+        return userService.getUserById(id);
+    }
+
+    // Search users (ADMIN only)
+    @GetMapping("/search")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<UserDTO> searchUsers(@RequestParam String query) {
+        return userService.searchUsers(query);
     }
 
     // Get all users (ADMIN only)

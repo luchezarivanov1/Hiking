@@ -1,6 +1,7 @@
 package com.hiking.controller;
 
 import com.hiking.dto.HikingRouteDTO;
+import com.hiking.dto.RoutePhotoDTO;
 import com.hiking.service.HikingRouteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,5 +30,17 @@ public class HikingRouteController {
     @PreAuthorize("hasRole('ADMIN')")
     public HikingRouteDTO createRoute(@RequestBody HikingRouteDTO dto) {
         return routeService.createRoute(dto);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public HikingRouteDTO updateRoute(@PathVariable Long id, @RequestBody HikingRouteDTO dto) {
+        return routeService.updateRoute(id, dto);
+    }
+
+    @PostMapping("/{id}/photos")
+    @PreAuthorize("hasRole('ADMIN')")
+    public RoutePhotoDTO addPhoto(@PathVariable Long id, @RequestBody RoutePhotoDTO dto) {
+        return routeService.addPhoto(id, dto);
     }
 }

@@ -1,8 +1,8 @@
 package com.hiking.config;
 
-import com.hiking.user.entity.Role;
-import com.hiking.user.entity.RoleType;
-import com.hiking.user.repository.RoleRepository;
+import com.hiking.entity.Role;
+import com.hiking.entity.RoleType;
+import com.hiking.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
