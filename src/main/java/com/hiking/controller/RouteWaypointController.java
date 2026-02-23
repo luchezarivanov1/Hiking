@@ -1,27 +1,27 @@
 package com.hiking.controller;
 
-import com.hiking.entity.Review;
-import com.hiking.service.ReviewService;
+import com.hiking.entity.RouteWaypoint;
+import com.hiking.service.RouteWaypointService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/reviews")
+@RequestMapping("/api/waypoints")
 @RequiredArgsConstructor
-public class ReviewController {
+public class RouteWaypointController {
 
-    private final ReviewService service;
+    private final RouteWaypointService service;
 
     @GetMapping
-    public List<Review> getAll() {
+    public List<RouteWaypoint> getAll() {
         return service.getAll();
     }
 
     @PostMapping
-    public Review create(@RequestBody Review review) {
-        return service.create(review);
+    public RouteWaypoint create(@RequestBody RouteWaypoint wp) {
+        return service.create(wp);
     }
 
     @DeleteMapping("/{id}")

@@ -13,6 +13,7 @@ public class RouteWaypoint {
     private Double latitude;
     private Double longitude;
     private String description;
+    private Integer orderIndex;
 
     @ManyToOne
     @JoinColumn(name = "route_id")

@@ -1,10 +1,8 @@
 package com.hiking.controller;
 
-import com.hiking.dto.EventDTO;
+import com.hiking.entity.Event;
 import com.hiking.service.EventService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,34 +12,20 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventController {
 
-    private final EventService eventService;
+    private final EventService service;
 
     @GetMapping
-    public List<EventDTO> getAllEvents() {
-        return eventService.getAllEvents();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<EventDTO> getEventById(@PathVariable Long id) {
-        return ResponseEntity.ok(eventService.getById(id));
+    public List<Event> getAll() {
+        return service.getAll();
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<EventDTO> createEvent(@RequestBody EventDTO dto) {
-        return ResponseEntity.ok(eventService.create(dto));
-    }
-
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<EventDTO> updateEvent(@PathVariable Long id, @RequestBody EventDTO dto) {
-        return ResponseEntity.ok(eventService.update(id, dto));
+    public Event create(@RequestBody Event e) {
+        return service.create(e);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
-        eventService.delete(id);
-        return ResponseEntity.noContent().build();
+    public void delete(@PathVariable Long id) {
+        service.delete(id);
     }
 }
