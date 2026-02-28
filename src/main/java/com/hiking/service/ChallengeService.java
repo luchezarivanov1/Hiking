@@ -17,6 +17,10 @@ public class ChallengeService {
         return repo.findAll();
     }
 
+    public List<Challenge> getChallengesByUserId(Long userId) {
+        return repo.findByUserId(userId);
+    }
+
     public Challenge create(Challenge c) {
         return repo.save(c);
     }

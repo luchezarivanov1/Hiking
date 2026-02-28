@@ -1,6 +1,6 @@
 package com.hiking.repository;
 
-import com.hiking.user.entity.User;
+import com.hiking.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

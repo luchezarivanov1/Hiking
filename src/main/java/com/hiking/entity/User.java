@@ -1,6 +1,6 @@
-package com.hiking.user.entity;
+package com.hiking.entity;
 
-import com.hiking.entity.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -44,6 +44,7 @@ public class User {
     @Builder.Default
     private List<Role> roles = new ArrayList<>();
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "user_friends",
@@ -52,4 +53,13 @@ public class User {
     )
     @Builder.Default
     private List<User> friends = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_challenges",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "challenge_id")
+    )
+    @Builder.Default
+    private List<Challenge> challenges = new ArrayList<>();
 }

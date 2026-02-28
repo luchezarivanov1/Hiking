@@ -19,6 +19,11 @@ public class ReviewController {
         return service.getAll();
     }
 
+    @GetMapping("/user/{userId}")
+    public List<Review> getByUser(@PathVariable Long userId) {
+        return service.getReviewsByUserId(userId);
+    }
+
     @PostMapping
     public Review create(@RequestBody Review review) {
         return service.create(review);

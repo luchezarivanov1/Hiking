@@ -1,8 +1,8 @@
 package com.hiking.service;
 
-import com.hiking.user.dto.UserDTO;
+import com.hiking.dto.UserDTO;
 import com.hiking.entity.Role;
-import com.hiking.user.entity.User;
+import com.hiking.entity.User;
 import com.hiking.repository.RoleRepository;
 import com.hiking.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;

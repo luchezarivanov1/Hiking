@@ -15,9 +15,5 @@ public interface LandmarkRepository extends JpaRepository<Landmark, Long> {
 
     List<Landmark> findByMountainAndNameContainingIgnoreCase(Mountain mountain, String name);
 
-    List<Landmark> findByMountainAndLocationContainingIgnoreCase(Mountain mountain, String location);
-
     List<Landmark> findByMountainAndTypeAndNameContainingIgnoreCase(Mountain mountain, LandmarkType type, String name);
-
-    List<Landmark> findByMountainAndTypeAndLocationContainingIgnoreCase(Mountain mountain, LandmarkType type, String location);
 }

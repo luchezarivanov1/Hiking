@@ -1,6 +1,7 @@
 package com.hiking.controller;
 
 import com.hiking.entity.Event;
+import com.hiking.entity.User;
 import com.hiking.service.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,11 @@ public class EventController {
     @GetMapping
     public List<Event> getAll() {
         return service.getAll();
+    }
+
+    @GetMapping("/{id}/users")
+    public List<User> getUsersByEvent(@PathVariable Long id) {
+        return service.getUsersByEventId(id);
     }
 
     @PostMapping

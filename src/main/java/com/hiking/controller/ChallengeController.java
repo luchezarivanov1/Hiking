@@ -19,6 +19,11 @@ public class ChallengeController {
         return service.getAll();
     }
 
+    @GetMapping("/user/{userId}")
+    public List<Challenge> getByUser(@PathVariable Long userId) {
+        return service.getChallengesByUserId(userId);
+    }
+
     @PostMapping
     public Challenge create(@RequestBody Challenge c) {
         return service.create(c);

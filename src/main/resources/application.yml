@@ -2,13 +2,13 @@ spring:
   application:
     name: hiking-bulgaria
   datasource:
-    url: jdbc:postgresql://localhost:5432/hiking_bulgaria
+    url: jdbc:postgresql://localhost:5432/hiking
     username: postgres
-    password: password
+    password: postgres
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: validate   # VERY IMPORTANT
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:

@@ -8,7 +8,7 @@ import com.hiking.security.CustomUserDetails;
 import com.hiking.security.JwtService;
 import com.hiking.entity.Role;
 import com.hiking.entity.RoleType;
-import com.hiking.user.entity.User;
+import com.hiking.entity.User;
 import com.hiking.repository.RoleRepository;
 import com.hiking.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

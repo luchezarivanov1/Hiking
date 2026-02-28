@@ -17,6 +17,10 @@ public class ReviewService {
         return repo.findAll();
     }
 
+    public List<Review> getReviewsByUserId(Long userId) {
+        return repo.findByUser_Id(userId);
+    }
+
     public Review create(Review review) {
         return repo.save(review);
     }

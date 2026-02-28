@@ -14,7 +14,8 @@ public class Landmark {
     private Long id;
 
     private String name;
-    private String type; // Peak, Waterfall, Cave, River, Viewpoint
+    @Enumerated(EnumType.STRING)
+    private LandmarkType type; // Peak, Waterfall, Cave, River, Viewpoint
     private Double latitude;
     private Double longitude;
     private String description;

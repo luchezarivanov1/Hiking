@@ -1,6 +1,7 @@
 package com.hiking.service;
 
 import com.hiking.entity.Event;
+import com.hiking.entity.User;
 import com.hiking.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,10 @@ public class EventService {
 
     public List<Event> getAll() {
         return repo.findAll();
+    }
+
+    public List<User> getUsersByEventId(Long eventId) {
+        return repo.findParticipantsByEventId(eventId);
     }
 
     public Event create(Event e) {
