@@ -6,6 +6,7 @@ import com.hiking.auth.dto.response.AuthResponseDTO;
 import com.hiking.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDTO> register(
-            @RequestBody RegisterRequestDTO request) {
+            @Valid @RequestBody RegisterRequestDTO request) {
 
         return ResponseEntity.ok(authService.register(request));
     }

@@ -1,8 +1,12 @@
 package com.hiking.controller;
 
+import com.hiking.dto.ChangePasswordRequestDTO;
+import com.hiking.dto.ChangeRolesRequestDTO;
 import com.hiking.dto.UserDTO;
 import com.hiking.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -57,6 +61,25 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public List<UserDTO> getAllUsers() {
         return userService.getAllUsers();
+    }
+
+    // Change password — accessible by the user themselves or an ADMIN
+    @PutMapping("/{id}/password")
+    public ResponseEntity<Void> changePassword(
+            @PathVariable Long id,
+            @Valid @RequestBody ChangePasswordRequestDTO request,
+            Authentication authentication) {
+        userService.changePassword(id, request, authentication);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Change user roles (ADMIN only)
+    @PutMapping("/{id}/roles")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDTO> changeUserRoles(
+            @PathVariable Long id,
+            @Valid @RequestBody ChangeRolesRequestDTO request) {
+        return ResponseEntity.ok(userService.changeUserRoles(id, request));
     }
 
     // Delete user (ADMIN only)

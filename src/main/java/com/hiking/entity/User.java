@@ -35,6 +35,12 @@ public class User {
     private Double totalDistanceKm;
     private Integer totalHikesCompleted;
 
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private int failedLoginAttempts;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean accountLocked;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",

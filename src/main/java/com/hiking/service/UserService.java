@@ -1,14 +1,23 @@
 package com.hiking.service;
 
+import com.hiking.dto.ChangePasswordRequestDTO;
+import com.hiking.dto.ChangeRolesRequestDTO;
 import com.hiking.dto.UserDTO;
 import com.hiking.entity.Role;
+import com.hiking.entity.RoleType;
 import com.hiking.entity.User;
+import com.hiking.exception.BadRequestException;
+import com.hiking.exception.ResourceNotFoundException;
+import com.hiking.exception.UnauthorizedException;
 import com.hiking.repository.RoleRepository;
 import com.hiking.repository.UserRepository;
+import com.hiking.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,9 +43,6 @@ public class UserService {
 
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
-        // Note: Password update logic might need more care with the new DTO which doesn't have password field
-        // But for now keeping it simple as per original
-        
         user.setExperienceLevel(dto.getExperienceLevel());
         user.setProfileImageUrl(dto.getProfileImageUrl());
         user.setTotalDistanceKm(dto.getTotalDistanceKm());
@@ -89,6 +95,55 @@ public class UserService {
             dto.setFriendIds(user.getFriends().stream().map(User::getId).collect(Collectors.toList()));
         }
         return dto;
+    }
+
+    // Change roles for a user (ADMIN only)
+    @Transactional
+    public UserDTO changeUserRoles(Long userId, ChangeRolesRequestDTO request) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        List<Role> roles = request.getRoles().stream()
+                .map(roleName -> {
+                    try {
+                        RoleType.valueOf(roleName);
+                    } catch (IllegalArgumentException e) {
+                        throw new BadRequestException("Invalid role: " + roleName);
+                    }
+                    return roleRepo.findByName(roleName)
+                            .orElseThrow(() -> new BadRequestException("Invalid role: " + roleName));
+                })
+                .collect(Collectors.toList());
+
+        user.setRoles(roles);
+        return mapToDTO(userRepo.save(user));
+    }
+
+    @Transactional
+    public void changePassword(Long userId, ChangePasswordRequestDTO request, Authentication authentication) {
+        User target = userRepo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        CustomUserDetails caller = (CustomUserDetails) authentication.getPrincipal();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        boolean isSelf = caller.getUsername().equals(target.getEmail());
+
+        if (!isAdmin && !isSelf) {
+            throw new UnauthorizedException("You are not authorized to change this user's password");
+        }
+
+        if (!isAdmin) {
+            if (request.getCurrentPassword() == null || request.getCurrentPassword().isBlank()) {
+                throw new BadRequestException("Current password is required");
+            }
+            if (!passwordEncoder.matches(request.getCurrentPassword(), target.getPassword())) {
+                throw new BadRequestException("Current password is incorrect");
+            }
+        }
+
+        target.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepo.save(target);
     }
 
     // Delete user (ADMIN only)
