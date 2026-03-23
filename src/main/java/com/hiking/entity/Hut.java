@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Entity
 @Data
 public class Hut {
@@ -26,4 +28,7 @@ public class Hut {
     private HikingRoute hikingRoute;
 
     private Double rating; // average rating
+
+    @OneToMany(mappedBy = "hut", cascade = CascadeType.ALL)
+    private Set<HutPhoto> photos;
 }

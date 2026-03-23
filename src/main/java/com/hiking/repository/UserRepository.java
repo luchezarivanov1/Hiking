@@ -2,6 +2,8 @@ package com.hiking.repository;
 
 import com.hiking.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,4 +16,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
     List<User> findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(String username, String email);
+
+    @Query("SELECT u FROM User u WHERE " +
+           "LOWER(u.username) LIKE LOWER(CONCAT('%', :q, '%')) OR " +
+           "LOWER(u.firstName) LIKE LOWER(CONCAT('%', :q, '%')) OR " +
+           "LOWER(u.lastName) LIKE LOWER(CONCAT('%', :q, '%'))")
+    List<User> searchByUsernameOrName(@Param("q") String q);
 }

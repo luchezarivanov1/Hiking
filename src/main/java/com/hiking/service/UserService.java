@@ -2,6 +2,7 @@ package com.hiking.service;
 
 import com.hiking.dto.ChangePasswordRequestDTO;
 import com.hiking.dto.ChangeRolesRequestDTO;
+import com.hiking.dto.UpdateProfileRequestDTO;
 import com.hiking.dto.UserDTO;
 import com.hiking.entity.Role;
 import com.hiking.entity.RoleType;
@@ -18,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,6 +32,7 @@ public class UserService {
     private final RoleRepository roleRepo;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
+    private final FileStorageService fileStorageService;
 
     // Create or update a user
     public UserDTO saveOrUpdateUser(UserDTO dto) {
@@ -74,9 +77,13 @@ public class UserService {
         return mapToDTO(user);
     }
 
-    // Search users by username or email
-    public List<UserDTO> searchUsers(String query) {
-        return userRepo.findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(query, query).stream()
+    // Search users by username, first name, or last name (min 3 chars), excluding the caller
+    public List<UserDTO> searchUsers(String query, String callerEmail) {
+        if (query == null || query.length() < 3) {
+            return List.of();
+        }
+        return userRepo.searchByUsernameOrName(query).stream()
+                .filter(u -> !u.getEmail().equalsIgnoreCase(callerEmail))
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
@@ -94,7 +101,23 @@ public class UserService {
         if (user.getFriends() != null) {
             dto.setFriendIds(user.getFriends().stream().map(User::getId).collect(Collectors.toList()));
         }
+        dto.setAccountLocked(user.isAccountLocked());
         return dto;
+    }
+
+    // Update current user's own profile fields
+    @Transactional
+    public UserDTO updateCurrentUserProfile(String email, UpdateProfileRequestDTO request) {
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setAge(request.getAge());
+        user.setCity(request.getCity());
+        if (request.getExperienceLevel() != null) {
+            user.setExperienceLevel(request.getExperienceLevel());
+        }
+        return mapToDTO(userRepo.save(user));
     }
 
     // Change roles for a user (ADMIN only)
@@ -144,6 +167,52 @@ public class UserService {
 
         target.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepo.save(target);
+    }
+
+    // Admin edit another user's profile (no username/email changes)
+    @Transactional
+    public UserDTO adminUpdateUserProfile(Long id, UpdateProfileRequestDTO request) {
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setAge(request.getAge());
+        user.setCity(request.getCity());
+        if (request.getExperienceLevel() != null) {
+            user.setExperienceLevel(request.getExperienceLevel());
+        } else {
+            user.setExperienceLevel(null);
+        }
+        return mapToDTO(userRepo.save(user));
+    }
+
+    // Deactivate user — locks the account so they cannot log in (ADMIN only)
+    @Transactional
+    public UserDTO deactivateUser(Long id) {
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        user.setAccountLocked(true);
+        return mapToDTO(userRepo.save(user));
+    }
+
+    // Activate user — unlocks the account and resets failed attempts (ADMIN only)
+    @Transactional
+    public UserDTO activateUser(Long id) {
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        user.setAccountLocked(false);
+        user.setFailedLoginAttempts(0);
+        return mapToDTO(userRepo.save(user));
+    }
+
+    // Upload and set avatar for the current user
+    @Transactional
+    public UserDTO uploadAvatar(String email, MultipartFile file) {
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        String url = fileStorageService.store(file, "avatars");
+        user.setProfileImageUrl(url);
+        return mapToDTO(userRepo.save(user));
     }
 
     // Delete user (ADMIN only)

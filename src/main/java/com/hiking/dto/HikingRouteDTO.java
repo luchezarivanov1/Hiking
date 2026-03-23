@@ -14,6 +14,6 @@ public class HikingRouteDTO {
     private String difficulty;
     private String description;
     private List<Long> hutIds;
-    private List<Long> photoIds;
+    private List<PhotoInfoDTO> photos;
     private List<Long> waypointIds;
 }

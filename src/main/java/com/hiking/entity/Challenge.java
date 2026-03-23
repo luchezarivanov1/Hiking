@@ -3,6 +3,8 @@ package com.hiking.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.Set;
+
 @Entity
 @Data
 public class Challenge {
@@ -16,4 +18,7 @@ public class Challenge {
     private String type; // e.g., "Complete 5 peaks in Rila"
 
     private Integer targetCount; // number of hikes, peaks, or landmarks
+
+    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
+    private Set<ChallengePhoto> photos;
 }

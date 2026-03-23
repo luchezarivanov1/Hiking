@@ -8,11 +8,11 @@ import java.util.List;
 public class LandmarkDTO {
     private Long id;
     private String name;
-    private String type; // Peak, Waterfall, Cave, River, Viewpoint
+    private String type;
     private Double latitude;
     private Double longitude;
     private String description;
     private Long mountainId;
     private Long hikingRouteId;
-    private List<Long> photoIds;
+    private List<PhotoInfoDTO> photos;
 }

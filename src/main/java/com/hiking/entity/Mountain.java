@@ -26,4 +26,7 @@ public class Mountain {
 
     @OneToMany(mappedBy = "mountain")
     private Set<Landmark> landmarks;
+
+    @OneToMany(mappedBy = "mountain", cascade = CascadeType.ALL)
+    private Set<MountainPhoto> photos;
 }

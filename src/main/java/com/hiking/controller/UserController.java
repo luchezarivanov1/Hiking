@@ -2,6 +2,7 @@ package com.hiking.controller;
 
 import com.hiking.dto.ChangePasswordRequestDTO;
 import com.hiking.dto.ChangeRolesRequestDTO;
+import com.hiking.dto.UpdateProfileRequestDTO;
 import com.hiking.dto.UserDTO;
 import com.hiking.service.UserService;
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -28,6 +30,22 @@ public class UserController {
         return userService.getUserByEmail(email);
     }
 
+    // Update current user's own profile fields
+    @PutMapping("/me")
+    public UserDTO updateProfile(@RequestBody UpdateProfileRequestDTO request, Authentication authentication) {
+        String email = ((UserDetails) authentication.getPrincipal()).getUsername();
+        return userService.updateCurrentUserProfile(email, request);
+    }
+
+    // Upload avatar for the current user
+    @PostMapping("/me/avatar")
+    public ResponseEntity<UserDTO> uploadAvatar(
+            @RequestParam("file") MultipartFile file,
+            Authentication authentication) {
+        String email = ((UserDetails) authentication.getPrincipal()).getUsername();
+        return ResponseEntity.ok(userService.uploadAvatar(email, file));
+    }
+
     // Create or update user (ADMIN can update any, user can update self)
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -42,18 +60,17 @@ public class UserController {
         return userService.saveOrUpdateUser(dto);
     }
 
-    // Get user by ID (ADMIN only)
+    // Get user by ID (any authenticated user)
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public UserDTO getUser(@PathVariable Long id) {
         return userService.getUserById(id);
     }
 
-    // Search users (ADMIN only)
+    // Search users by username, first name, or last name (excludes the caller)
     @GetMapping("/search")
-    @PreAuthorize("hasRole('ADMIN')")
-    public List<UserDTO> searchUsers(@RequestParam String query) {
-        return userService.searchUsers(query);
+    public List<UserDTO> searchUsers(@RequestParam String q, Authentication authentication) {
+        String callerEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        return userService.searchUsers(q, callerEmail);
     }
 
     // Get all users (ADMIN only)
@@ -80,6 +97,29 @@ public class UserController {
             @PathVariable Long id,
             @Valid @RequestBody ChangeRolesRequestDTO request) {
         return ResponseEntity.ok(userService.changeUserRoles(id, request));
+    }
+
+    // Admin edit another user's profile fields (no username/email)
+    @PutMapping("/{id}/profile")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDTO> adminUpdateUserProfile(
+            @PathVariable Long id,
+            @RequestBody UpdateProfileRequestDTO request) {
+        return ResponseEntity.ok(userService.adminUpdateUserProfile(id, request));
+    }
+
+    // Deactivate user (ADMIN only)
+    @PutMapping("/{id}/deactivate")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDTO> deactivateUser(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.deactivateUser(id));
+    }
+
+    // Activate user (ADMIN only)
+    @PutMapping("/{id}/activate")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDTO> activateUser(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.activateUser(id));
     }
 
     // Delete user (ADMIN only)

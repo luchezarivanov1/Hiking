@@ -32,6 +32,11 @@ public class User {
     private String experienceLevel; // Beginner / Intermediate / Advanced
     private String profileImageUrl;
 
+    private String firstName;
+    private String lastName;
+    private Integer age;
+    private String city;
+
     private Double totalDistanceKm;
     private Integer totalHikesCompleted;
 

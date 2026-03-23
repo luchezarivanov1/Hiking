@@ -13,6 +13,8 @@ import com.hiking.entity.User;
 import com.hiking.repository.RoleRepository;
 import com.hiking.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
@@ -52,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.getRoles().add(userRole);
+        user.setRoles(new ArrayList<>(List.of(userRole)));
 
         userRepository.save(user);
 
@@ -61,7 +63,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    @Transactional
+    @Transactional(noRollbackFor = {BadCredentialsException.class, LockedException.class})
     public AuthResponseDTO login(LoginRequestDTO request) {
 
         User user = userRepository.findByUsername(request.getUsername())
@@ -69,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
                         .orElseThrow(() -> new UsernameNotFoundException("Invalid credentials")));
 
         if (user.isAccountLocked()) {
-            throw new LockedException("Account is locked due to too many failed login attempts. Please contact support.");
+            throw new LockedException("Your account has been deactivated. Please contact support to regain access.");
         }
 
         try {

@@ -1,11 +1,13 @@
 package com.hiking.controller;
 
 import com.hiking.dto.LandmarkDTO;
-import com.hiking.entity.LandmarkType;
+import com.hiking.dto.PhotoInfoDTO;
 import com.hiking.service.LandmarkService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,30 +19,36 @@ public class LandmarkController {
     private final LandmarkService landmarkService;
 
     @GetMapping
-    public List<LandmarkDTO> getAllLandmarks() {
-        return landmarkService.getAllLandmarks();
-    }
+    public List<LandmarkDTO> getAllLandmarks() { return landmarkService.getAllLandmarks(); }
 
     @GetMapping("/{id}")
-    public LandmarkDTO getLandmark(@PathVariable Long id) {
-        return landmarkService.getById(id);
-    }
+    public LandmarkDTO getLandmark(@PathVariable Long id) { return landmarkService.getById(id); }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public LandmarkDTO createLandmark(@RequestBody LandmarkDTO dto) {
-        return landmarkService.create(dto);
-    }
+    public LandmarkDTO createLandmark(@RequestBody LandmarkDTO dto) { return landmarkService.create(dto); }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public LandmarkDTO updateLandmark(@PathVariable Long id, @RequestBody LandmarkDTO dto) {
-        return landmarkService.update(id, dto);
-    }
+    public LandmarkDTO updateLandmark(@PathVariable Long id, @RequestBody LandmarkDTO dto) { return landmarkService.update(id, dto); }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public void deleteLandmark(@PathVariable Long id) {
-        landmarkService.delete(id);
+    public void deleteLandmark(@PathVariable Long id) { landmarkService.delete(id); }
+
+    @PostMapping("/{id}/photos")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PhotoInfoDTO> addPhoto(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "description", required = false) String description) {
+        return ResponseEntity.ok(landmarkService.addPhoto(id, file, description));
+    }
+
+    @DeleteMapping("/{id}/photos/{photoId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deletePhoto(@PathVariable Long id, @PathVariable Long photoId) {
+        landmarkService.deletePhoto(photoId);
+        return ResponseEntity.noContent().build();
     }
 }

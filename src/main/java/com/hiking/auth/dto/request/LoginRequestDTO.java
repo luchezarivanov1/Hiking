@@ -1,5 +1,6 @@
 package com.hiking.auth.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.*;
 
 @Getter
@@ -9,6 +10,7 @@ import lombok.*;
 @Builder
 public class LoginRequestDTO {
 
+    @JsonAlias("email")
     private String username;
     private String password;
 }
