@@ -1,12 +1,13 @@
 package com.hiking.controller;
 
-import com.hiking.entity.Review;
+import com.hiking.dto.ReviewDTO;
 import com.hiking.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reviews")
@@ -16,19 +17,35 @@ public class ReviewController {
     private final ReviewService service;
 
     @GetMapping
-    public List<Review> getAll() {
+    public List<ReviewDTO> getAll() {
         return service.getAll();
     }
 
     @GetMapping("/user/{userId}")
-    public List<Review> getByUser(@PathVariable Long userId) {
-        return service.getReviewsByUserId(userId);
+    public List<ReviewDTO> getByUser(@PathVariable Long userId) {
+        return service.getByUser(userId);
     }
 
-    @PostMapping
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public Review create(@RequestBody Review review) {
-        return service.create(review);
+    @GetMapping("/{type}/{id}")
+    public List<ReviewDTO> getForEntity(@PathVariable String type, @PathVariable Long id) {
+        return service.getForEntity(type, id);
+    }
+
+    @GetMapping("/{type}/{id}/summary")
+    public Map<String, Object> getSummary(@PathVariable String type, @PathVariable Long id) {
+        return service.getSummary(type, id);
+    }
+
+    @PostMapping("/{type}/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ReviewDTO create(@PathVariable String type, @PathVariable Long id, @RequestBody CreateReviewRequest body) {
+        return service.create(type, id, body.rating(), body.comment());
+    }
+
+    @PutMapping("/{reviewId}")
+    @PreAuthorize("isAuthenticated()")
+    public ReviewDTO update(@PathVariable Long reviewId, @RequestBody CreateReviewRequest body) {
+        return service.update(reviewId, body.rating(), body.comment());
     }
 
     @DeleteMapping("/{id}")
@@ -36,4 +53,6 @@ public class ReviewController {
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }
+
+    public record CreateReviewRequest(Integer rating, String comment) {}
 }

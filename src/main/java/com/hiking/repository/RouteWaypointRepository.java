@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface RouteWaypointRepository extends JpaRepository<RouteWaypoint, Long> {
     List<RouteWaypoint> findByHikingRouteIdOrderByOrderIndex(Long routeId);
+
+    void deleteByHikingRouteId(Long routeId);
 }

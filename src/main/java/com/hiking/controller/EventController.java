@@ -25,6 +25,10 @@ public class EventController {
     @GetMapping("/{id}")
     public EventDTO getById(@PathVariable Long id) { return service.getById(id); }
 
+    @GetMapping("/me/joined")
+    @PreAuthorize("isAuthenticated()")
+    public List<EventDTO> getMyJoined() { return service.getJoinedByCurrentUser(); }
+
     @GetMapping("/{id}/users")
     @PreAuthorize("hasRole('ADMIN')")
     public List<User> getUsersByEvent(@PathVariable Long id) { return service.getUsersByEventId(id); }
@@ -56,4 +60,12 @@ public class EventController {
         service.deletePhoto(photoId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/join")
+    @PreAuthorize("isAuthenticated()")
+    public EventDTO join(@PathVariable Long id) { return service.join(id); }
+
+    @DeleteMapping("/{id}/join")
+    @PreAuthorize("isAuthenticated()")
+    public EventDTO leave(@PathVariable Long id) { return service.leave(id); }
 }

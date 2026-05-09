@@ -14,4 +14,7 @@ public class EventDTO {
     private LocalDateTime endTime;
     private String location;
     private List<PhotoInfoDTO> photos;
+    private int participantCount;
+    private boolean joined;
+    private boolean favorited;
 }

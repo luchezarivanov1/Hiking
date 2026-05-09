@@ -2,6 +2,7 @@ package com.hiking.controller;
 
 import com.hiking.dto.HikingRouteDTO;
 import com.hiking.dto.PhotoInfoDTO;
+import com.hiking.service.GpxService;
 import com.hiking.service.HikingRouteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import java.util.List;
 public class HikingRouteController {
 
     private final HikingRouteService routeService;
+    private final GpxService gpxService;
 
     @GetMapping
     public List<HikingRouteDTO> getAllRoutes() { return routeService.getAllRoutes(); }
@@ -50,5 +52,12 @@ public class HikingRouteController {
     public ResponseEntity<Void> deletePhoto(@PathVariable Long id, @PathVariable Long photoId) {
         routeService.deletePhoto(photoId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/gpx")
+    @PreAuthorize("hasRole('ADMIN')")
+    public HikingRouteDTO uploadGpx(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        gpxService.importGpxIntoRoute(id, file);
+        return routeService.getById(id);
     }
 }

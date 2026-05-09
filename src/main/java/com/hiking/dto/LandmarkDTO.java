@@ -15,4 +15,5 @@ public class LandmarkDTO {
     private Long mountainId;
     private Long hikingRouteId;
     private List<PhotoInfoDTO> photos;
+    private boolean favorited;
 }

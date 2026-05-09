@@ -21,6 +21,7 @@ public class HikingRouteService {
     private final MountainRepository mountainRepo;
     private final RoutePhotoRepository photoRepo;
     private final FileStorageService fileStorageService;
+    private final FavoriteService favoriteService;
     private final ModelMapper mapper;
 
     public List<HikingRouteDTO> getAllRoutes() {
@@ -88,6 +89,7 @@ public class HikingRouteService {
         dto.setPhotos(photoRepo.findByHikingRoute(route).stream()
                 .map(p -> new PhotoInfoDTO(p.getId(), p.getUrl())).toList());
         if (route.getWaypoints() != null) dto.setWaypointIds(route.getWaypoints().stream().map(RouteWaypoint::getId).toList());
+        dto.setFavorited(favoriteService.isFavorite("routes", route.getId()));
         return dto;
     }
 }

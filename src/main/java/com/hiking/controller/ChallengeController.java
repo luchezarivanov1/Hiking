@@ -27,6 +27,10 @@ public class ChallengeController {
     @GetMapping("/user/{userId}")
     public List<ChallengeDTO> getByUser(@PathVariable Long userId) { return service.getChallengesByUserId(userId); }
 
+    @GetMapping("/me/joined")
+    @PreAuthorize("isAuthenticated()")
+    public List<ChallengeDTO> getMyJoined() { return service.getJoinedByCurrentUser(); }
+
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ChallengeDTO create(@RequestBody ChallengeDTO dto) { return service.create(dto); }
@@ -54,4 +58,12 @@ public class ChallengeController {
         service.deletePhoto(photoId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/join")
+    @PreAuthorize("isAuthenticated()")
+    public ChallengeDTO join(@PathVariable Long id) { return service.join(id); }
+
+    @DeleteMapping("/{id}/join")
+    @PreAuthorize("isAuthenticated()")
+    public ChallengeDTO leave(@PathVariable Long id) { return service.leave(id); }
 }

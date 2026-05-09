@@ -20,6 +20,7 @@ public class MountainService {
     private final MountainRepository mountainRepo;
     private final MountainPhotoRepository photoRepo;
     private final FileStorageService fileStorageService;
+    private final FavoriteService favoriteService;
     private final ModelMapper mapper;
 
     public List<MountainDTO> getAllMountains() {
@@ -70,6 +71,7 @@ public class MountainService {
         dto.setHighestPeak(mountain.getHighestPeak());
         dto.setPhotos(photoRepo.findByMountain(mountain).stream()
                 .map(p -> new PhotoInfoDTO(p.getId(), p.getUrl())).toList());
+        dto.setFavorited(favoriteService.isFavorite("mountains", mountain.getId()));
         return dto;
     }
 }

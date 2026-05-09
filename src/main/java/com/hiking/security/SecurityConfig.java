@@ -48,8 +48,11 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,
                     "/api/routes/**",
                     "/api/huts/**",
+                    "/api/landmarks/**",
                     "/api/events/**",
-                    "/api/challenges/**"
+                    "/api/challenges/**",
+                    "/api/reviews/**",
+                    "/api/maps/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )

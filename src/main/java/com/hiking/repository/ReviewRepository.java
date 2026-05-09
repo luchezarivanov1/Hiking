@@ -12,4 +12,14 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByHut_Name(String hutName);
     List<Review> findByLandmark_Name(String landmarkName);
     List<Review> findByUser_Id(Long userId);
+
+    List<Review> findByHikingRoute_IdOrderByIdDesc(Long routeId);
+    List<Review> findByHut_IdOrderByIdDesc(Long hutId);
+    List<Review> findByLandmark_IdOrderByIdDesc(Long landmarkId);
+    List<Review> findByEvent_IdOrderByIdDesc(Long eventId);
+
+    java.util.Optional<Review> findByUser_IdAndHikingRoute_Id(Long userId, Long routeId);
+    java.util.Optional<Review> findByUser_IdAndHut_Id(Long userId, Long hutId);
+    java.util.Optional<Review> findByUser_IdAndLandmark_Id(Long userId, Long landmarkId);
+    java.util.Optional<Review> findByUser_IdAndEvent_Id(Long userId, Long eventId);
 }

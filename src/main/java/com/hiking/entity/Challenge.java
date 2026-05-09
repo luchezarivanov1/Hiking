@@ -3,6 +3,8 @@ package com.hiking.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -21,4 +23,7 @@ public class Challenge {
 
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
     private Set<ChallengePhoto> photos;
+
+    @ManyToMany(mappedBy = "challenges")
+    private List<User> participants = new ArrayList<>();
 }

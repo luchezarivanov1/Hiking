@@ -4,11 +4,17 @@ import com.hiking.dto.ChallengeDTO;
 import com.hiking.dto.PhotoInfoDTO;
 import com.hiking.entity.Challenge;
 import com.hiking.entity.ChallengePhoto;
+import com.hiking.entity.User;
 import com.hiking.repository.ChallengePhotoRepository;
 import com.hiking.repository.ChallengeRepository;
+import com.hiking.repository.UserRepository;
+import com.hiking.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -19,7 +25,9 @@ public class ChallengeService {
 
     private final ChallengeRepository repo;
     private final ChallengePhotoRepository photoRepo;
+    private final UserRepository userRepo;
     private final FileStorageService fileStorageService;
+    private final FavoriteService favoriteService;
     private final ModelMapper mapper;
 
     public List<ChallengeDTO> getAll() {
@@ -32,6 +40,11 @@ public class ChallengeService {
 
     public List<ChallengeDTO> getChallengesByUserId(Long userId) {
         return repo.findByUserId(userId).stream().map(this::mapToDTO).toList();
+    }
+
+    public List<ChallengeDTO> getJoinedByCurrentUser() {
+        User user = currentUserOrThrow();
+        return repo.findByUserId(user.getId()).stream().map(this::mapToDTO).toList();
     }
 
     public ChallengeDTO create(ChallengeDTO dto) {
@@ -67,6 +80,35 @@ public class ChallengeService {
         photoRepo.deleteById(photoId);
     }
 
+    @Transactional
+    public ChallengeDTO join(Long challengeId) {
+        Challenge challenge = repo.findById(challengeId).orElseThrow(() -> new RuntimeException("Challenge not found"));
+        User user = currentUserOrThrow();
+        if (user.getChallenges().stream().noneMatch(c -> c.getId().equals(challenge.getId()))) {
+            user.getChallenges().add(challenge);
+            userRepo.save(user);
+        }
+        return mapToDTO(challenge);
+    }
+
+    @Transactional
+    public ChallengeDTO leave(Long challengeId) {
+        Challenge challenge = repo.findById(challengeId).orElseThrow(() -> new RuntimeException("Challenge not found"));
+        User user = currentUserOrThrow();
+        user.getChallenges().removeIf(c -> c.getId().equals(challenge.getId()));
+        userRepo.save(user);
+        return mapToDTO(challenge);
+    }
+
+    private User currentUserOrThrow() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof CustomUserDetails details)) {
+            throw new RuntimeException("Not authenticated");
+        }
+        return userRepo.findByEmail(details.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
     private ChallengeDTO mapToDTO(Challenge challenge) {
         var dto = new ChallengeDTO();
         dto.setId(challenge.getId());
@@ -76,6 +118,18 @@ public class ChallengeService {
         dto.setTargetCount(challenge.getTargetCount());
         dto.setPhotos(photoRepo.findByChallenge(challenge).stream()
                 .map(p -> new PhotoInfoDTO(p.getId(), p.getUrl())).toList());
+        List<User> participants = challenge.getParticipants();
+        dto.setParticipantCount(participants == null ? 0 : participants.size());
+        dto.setJoined(isCurrentUserParticipant(participants));
+        dto.setFavorited(favoriteService.isFavorite("challenges", challenge.getId()));
         return dto;
+    }
+
+    private boolean isCurrentUserParticipant(List<User> participants) {
+        if (participants == null || participants.isEmpty()) return false;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof CustomUserDetails details)) return false;
+        String email = details.getUsername();
+        return participants.stream().anyMatch(u -> email.equals(u.getEmail()));
     }
 }

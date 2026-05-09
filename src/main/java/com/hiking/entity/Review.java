@@ -29,4 +29,8 @@ public class Review {
     @ManyToOne
     @JoinColumn(name = "landmark_id")
     private Landmark landmark;
+
+    @ManyToOne
+    @JoinColumn(name = "event_id")
+    private Event event;
 }

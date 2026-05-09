@@ -98,11 +98,67 @@ public class UserService {
     private UserDTO mapToDTO(User user) {
         UserDTO dto = modelMapper.map(user, UserDTO.class);
         dto.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
-        if (user.getFriends() != null) {
-            dto.setFriendIds(user.getFriends().stream().map(User::getId).collect(Collectors.toList()));
-        }
+        dto.setFollowerCount(user.getFollowers() == null ? 0 : user.getFollowers().size());
+        dto.setFollowingCount(user.getFollowing() == null ? 0 : user.getFollowing().size());
+        dto.setFollowedByMe(currentUserFollows(user));
         dto.setAccountLocked(user.isAccountLocked());
         return dto;
+    }
+
+    private boolean currentUserFollows(User target) {
+        Authentication auth = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof CustomUserDetails details)) return false;
+        if (target.getFollowers() == null) return false;
+        String email = details.getUsername();
+        return target.getFollowers().stream().anyMatch(u -> email.equals(u.getEmail()));
+    }
+
+    @Transactional
+    public void follow(Long targetUserId) {
+        User me = currentUserOrThrow();
+        if (me.getId().equals(targetUserId)) {
+            throw new BadRequestException("You cannot follow yourself");
+        }
+        User target = userRepo.findById(targetUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        if (me.getFollowing().stream().noneMatch(u -> u.getId().equals(target.getId()))) {
+            me.getFollowing().add(target);
+            userRepo.save(me);
+        }
+    }
+
+    @Transactional
+    public void unfollow(Long targetUserId) {
+        User me = currentUserOrThrow();
+        me.getFollowing().removeIf(u -> u.getId().equals(targetUserId));
+        userRepo.save(me);
+    }
+
+    public List<UserDTO> getFollowers(Long userId) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        List<User> followers = user.getFollowers();
+        if (followers == null) return List.of();
+        return followers.stream().map(this::mapToDTO).collect(Collectors.toList());
+    }
+
+    public List<UserDTO> getFollowing(Long userId) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        List<User> following = user.getFollowing();
+        if (following == null) return List.of();
+        return following.stream().map(this::mapToDTO).collect(Collectors.toList());
+    }
+
+    private User currentUserOrThrow() {
+        Authentication auth = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof CustomUserDetails details)) {
+            throw new UnauthorizedException("Not authenticated");
+        }
+        return userRepo.findByEmail(details.getUsername())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     // Update current user's own profile fields

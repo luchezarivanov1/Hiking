@@ -12,4 +12,7 @@ public class ChallengeDTO {
     private String type;
     private Integer targetCount;
     private List<PhotoInfoDTO> photos;
+    private int participantCount;
+    private boolean joined;
+    private boolean favorited;
 }

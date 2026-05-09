@@ -128,4 +128,28 @@ public class UserController {
     public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
     }
+
+    @PostMapping("/{id}/follow")
+    @PreAuthorize("isAuthenticated()")
+    public void follow(@PathVariable Long id) {
+        userService.follow(id);
+    }
+
+    @DeleteMapping("/{id}/follow")
+    @PreAuthorize("isAuthenticated()")
+    public void unfollow(@PathVariable Long id) {
+        userService.unfollow(id);
+    }
+
+    @GetMapping("/{id}/followers")
+    @PreAuthorize("isAuthenticated()")
+    public List<UserDTO> getFollowers(@PathVariable Long id) {
+        return userService.getFollowers(id);
+    }
+
+    @GetMapping("/{id}/following")
+    @PreAuthorize("isAuthenticated()")
+    public List<UserDTO> getFollowing(@PathVariable Long id) {
+        return userService.getFollowing(id);
+    }
 }

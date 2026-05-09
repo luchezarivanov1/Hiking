@@ -14,4 +14,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query("SELECT u FROM Event e JOIN e.participants u WHERE e.id = :eventId")
     List<User> findParticipantsByEventId(@Param("eventId") Long eventId);
+
+    @Query("SELECT e FROM Event e JOIN e.participants p WHERE p.id = :userId ORDER BY e.startTime DESC NULLS LAST, e.id DESC")
+    List<Event> findJoinedByUserId(@Param("userId") Long userId);
 }

@@ -18,6 +18,8 @@ public class UserDTO {
     private Double totalDistanceKm;
     private Integer totalHikesCompleted;
     private List<String> roles;
-    private List<Long> friendIds;
+    private int followerCount;
+    private int followingCount;
+    private boolean followedByMe;
     private boolean accountLocked;
 }

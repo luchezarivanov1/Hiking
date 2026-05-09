@@ -16,4 +16,5 @@ public class HikingRouteDTO {
     private List<Long> hutIds;
     private List<PhotoInfoDTO> photos;
     private List<Long> waypointIds;
+    private boolean favorited;
 }

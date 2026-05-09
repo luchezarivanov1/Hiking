@@ -58,12 +58,17 @@ public class User {
     @JsonIgnore
     @ManyToMany
     @JoinTable(
-            name = "user_friends",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "friend_id")
+            name = "user_follows",
+            joinColumns = @JoinColumn(name = "follower_id"),
+            inverseJoinColumns = @JoinColumn(name = "following_id")
     )
     @Builder.Default
-    private List<User> friends = new ArrayList<>();
+    private List<User> following = new ArrayList<>();
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "following")
+    @Builder.Default
+    private List<User> followers = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(

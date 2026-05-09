@@ -1,13 +1,15 @@
 package com.hiking.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class Hut {
 
     @Id
@@ -18,6 +20,15 @@ public class Hut {
     private String address;
     private Integer capacity;
     private Boolean openYearRound;
+    @Column(name = "elevation_m")
+    private Integer elevationM;
+    private Double latitude;
+    private Double longitude;
+    @Column(name = "has_restaurant")
+    private Boolean hasRestaurant;
+    @Column(name = "has_accommodation")
+    private Boolean hasAccommodation;
+    private String phone;
 
     @ManyToOne
     @JoinColumn(name = "mountain_id")
@@ -26,8 +37,6 @@ public class Hut {
     @ManyToOne
     @JoinColumn(name = "route_id")
     private HikingRoute hikingRoute;
-
-    private Double rating; // average rating
 
     @OneToMany(mappedBy = "hut", cascade = CascadeType.ALL)
     private Set<HutPhoto> photos;

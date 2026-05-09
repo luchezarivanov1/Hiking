@@ -1,13 +1,15 @@
 package com.hiking.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class Mountain {
 
     @Id
@@ -17,6 +19,11 @@ public class Mountain {
     private String name;
     private String region;
     private Double highestPeak;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+    private Double latitude;
+    private Double longitude;
 
     @OneToMany(mappedBy = "mountain")
     private Set<HikingRoute> routes;

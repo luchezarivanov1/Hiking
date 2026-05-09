@@ -26,6 +26,7 @@ public class LandmarkService {
     private final HikingRouteRepository routeRepo;
     private final LandmarkPhotoRepository photoRepo;
     private final FileStorageService fileStorageService;
+    private final FavoriteService favoriteService;
     private final ModelMapper mapper;
 
     public List<LandmarkDTO> getAllLandmarks() {
@@ -102,6 +103,7 @@ public class LandmarkService {
         if (landmark.getHikingRoute() != null) dto.setHikingRouteId(landmark.getHikingRoute().getId());
         dto.setPhotos(photoRepo.findByLandmark(landmark).stream()
                 .map(p -> new PhotoInfoDTO(p.getId(), p.getUrl())).toList());
+        dto.setFavorited(favoriteService.isFavorite("landmarks", landmark.getId()));
         return dto;
     }
 }

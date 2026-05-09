@@ -24,6 +24,7 @@ public class HutService {
     private final HikingRouteRepository routeRepo;
     private final HutPhotoRepository photoRepo;
     private final FileStorageService fileStorageService;
+    private final FavoriteService favoriteService;
     private final ModelMapper mapper;
 
     public List<HutDTO> getAllHuts() {
@@ -53,7 +54,6 @@ public class HutService {
         hut.setAddress(dto.getAddress());
         hut.setCapacity(dto.getCapacity());
         hut.setOpenYearRound(dto.getOpenYearRound());
-        hut.setRating(dto.getRating());
         hut.setMountain(null);
         if (dto.getMountainId() != null) {
             hut.setMountain(mountainRepo.findById(dto.getMountainId())
@@ -93,11 +93,17 @@ public class HutService {
         dto.setAddress(hut.getAddress());
         dto.setCapacity(hut.getCapacity());
         dto.setOpenYearRound(hut.getOpenYearRound());
-        dto.setRating(hut.getRating());
+        dto.setElevationM(hut.getElevationM());
+        dto.setLatitude(hut.getLatitude());
+        dto.setLongitude(hut.getLongitude());
+        dto.setHasRestaurant(hut.getHasRestaurant());
+        dto.setHasAccommodation(hut.getHasAccommodation());
+        dto.setPhone(hut.getPhone());
         if (hut.getMountain() != null) dto.setMountainId(hut.getMountain().getId());
         if (hut.getHikingRoute() != null) dto.setRouteId(hut.getHikingRoute().getId());
         dto.setPhotos(photoRepo.findByHut(hut).stream()
                 .map(p -> new PhotoInfoDTO(p.getId(), p.getUrl())).toList());
+        dto.setFavorited(favoriteService.isFavorite("huts", hut.getId()));
         return dto;
     }
 }
