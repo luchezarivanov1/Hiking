@@ -2,6 +2,8 @@ package com.hiking.dto;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class ReviewDTO {
     private Long id;
@@ -16,4 +18,6 @@ public class ReviewDTO {
     private Long eventId;
     private String entityType;
     private String entityName;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

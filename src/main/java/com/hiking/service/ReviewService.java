@@ -89,8 +89,17 @@ public class ReviewService {
         return mapToDTO(repo.save(review));
     }
 
+    @Transactional
     public void delete(Long id) {
-        repo.deleteById(id);
+        Review review = repo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Review not found"));
+        User user = currentUserOrThrow();
+        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication()
+                .getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        if (!isAdmin && (review.getUser() == null || !review.getUser().getId().equals(user.getId()))) {
+            throw new UnauthorizedException("You can only delete your own review");
+        }
+        repo.delete(review);
     }
 
     private void validateRating(Integer rating) {
@@ -155,6 +164,8 @@ public class ReviewService {
         dto.setId(r.getId());
         dto.setRating(r.getRating());
         dto.setComment(r.getComment());
+        dto.setCreatedAt(r.getCreatedAt());
+        dto.setUpdatedAt(r.getUpdatedAt());
         if (r.getUser() != null) {
             dto.setUserId(r.getUser().getId());
             dto.setUsername(r.getUser().getUsername());

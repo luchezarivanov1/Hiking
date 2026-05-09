@@ -49,7 +49,7 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }
