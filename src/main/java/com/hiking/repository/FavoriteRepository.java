@@ -12,8 +12,6 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 
     Optional<Favorite> findByUser_IdAndEntityTypeAndEntityId(Long userId, String entityType, Long entityId);
 
-    List<Favorite> findByUser_IdAndEntityType(Long userId, String entityType);
-
     List<Favorite> findByUser_Id(Long userId);
 
     boolean existsByUser_IdAndEntityTypeAndEntityId(Long userId, String entityType, Long entityId);

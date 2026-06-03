@@ -11,7 +11,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -30,13 +29,6 @@ public class FavoriteService {
         Long userId = currentUserIdOrNull();
         if (userId == null) return false;
         return repo.existsByUser_IdAndEntityTypeAndEntityId(userId, type, entityId);
-    }
-
-    public Set<Long> favoriteIdsForCurrentUser(String type) {
-        Long userId = currentUserIdOrNull();
-        if (userId == null) return Set.of();
-        return new HashSet<>(repo.findByUser_IdAndEntityType(userId, type)
-                .stream().map(Favorite::getEntityId).toList());
     }
 
     public List<Favorite> listForCurrentUser() {

@@ -16,11 +16,6 @@ public class ReviewController {
 
     private final ReviewService service;
 
-    @GetMapping
-    public List<ReviewDTO> getAll() {
-        return service.getAll();
-    }
-
     @GetMapping("/user/{userId}")
     public List<ReviewDTO> getByUser(@PathVariable Long userId) {
         return service.getByUser(userId);

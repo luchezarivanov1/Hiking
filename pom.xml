@@ -148,6 +148,20 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+
+            <!--
+                The project targets Java 24, but the build commonly runs on a newer JDK (e.g. 25).
+                ByteBuddy (used by Mockito) refuses to instrument classes on a JVM it does not yet
+                recognise unless experimental support is enabled, which otherwise breaks mocking of
+                concrete classes (e.g. ModelMapper, service beans) in unit tests.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>-Dnet.bytebuddy.experimental=true</argLine>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

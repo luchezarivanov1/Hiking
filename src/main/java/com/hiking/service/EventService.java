@@ -38,10 +38,6 @@ public class EventService {
         return mapToDTO(repo.findById(id).orElseThrow(() -> new RuntimeException("Event not found")));
     }
 
-    public List<User> getUsersByEventId(Long eventId) {
-        return repo.findParticipantsByEventId(eventId);
-    }
-
     public List<EventDTO> getJoinedByCurrentUser() {
         User user = currentUserOrThrow();
         return repo.findJoinedByUserId(user.getId()).stream().map(this::mapToDTO).toList();

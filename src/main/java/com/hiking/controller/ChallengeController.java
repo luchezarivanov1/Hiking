@@ -24,9 +24,6 @@ public class ChallengeController {
     @GetMapping("/{id}")
     public ChallengeDTO getById(@PathVariable Long id) { return service.getById(id); }
 
-    @GetMapping("/user/{userId}")
-    public List<ChallengeDTO> getByUser(@PathVariable Long userId) { return service.getChallengesByUserId(userId); }
-
     @GetMapping("/me/joined")
     @PreAuthorize("isAuthenticated()")
     public List<ChallengeDTO> getMyJoined() { return service.getJoinedByCurrentUser(); }

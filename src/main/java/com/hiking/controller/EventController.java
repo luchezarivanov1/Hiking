@@ -2,7 +2,6 @@ package com.hiking.controller;
 
 import com.hiking.dto.EventDTO;
 import com.hiking.dto.PhotoInfoDTO;
-import com.hiking.entity.User;
 import com.hiking.service.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,10 +27,6 @@ public class EventController {
     @GetMapping("/me/joined")
     @PreAuthorize("isAuthenticated()")
     public List<EventDTO> getMyJoined() { return service.getJoinedByCurrentUser(); }
-
-    @GetMapping("/{id}/users")
-    @PreAuthorize("hasRole('ADMIN')")
-    public List<User> getUsersByEvent(@PathVariable Long id) { return service.getUsersByEventId(id); }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")

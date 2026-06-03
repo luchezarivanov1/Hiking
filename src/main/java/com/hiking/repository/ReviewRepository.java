@@ -9,8 +9,6 @@ import java.util.List;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
-    List<Review> findByHut_Name(String hutName);
-    List<Review> findByLandmark_Name(String landmarkName);
     List<Review> findByUser_Id(Long userId);
 
     List<Review> findByHikingRoute_IdOrderByIdDesc(Long routeId);

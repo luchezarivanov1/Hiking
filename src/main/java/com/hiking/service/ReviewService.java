@@ -38,10 +38,6 @@ public class ReviewService {
     private final LandmarkRepository landmarkRepo;
     private final EventRepository eventRepo;
 
-    public List<ReviewDTO> getAll() {
-        return repo.findAll().stream().map(this::mapToDTO).toList();
-    }
-
     public List<ReviewDTO> getByUser(Long userId) {
         return repo.findByUser_Id(userId).stream().map(this::mapToDTO).toList();
     }

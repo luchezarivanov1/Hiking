@@ -38,10 +38,6 @@ public class ChallengeService {
         return mapToDTO(repo.findById(id).orElseThrow(() -> new RuntimeException("Challenge not found")));
     }
 
-    public List<ChallengeDTO> getChallengesByUserId(Long userId) {
-        return repo.findByUserId(userId).stream().map(this::mapToDTO).toList();
-    }
-
     public List<ChallengeDTO> getJoinedByCurrentUser() {
         User user = currentUserOrThrow();
         return repo.findByUserId(user.getId()).stream().map(this::mapToDTO).toList();
