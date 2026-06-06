@@ -1,4 +1,4 @@
-package com.hiking.auth.dto.response;
+package com.hiking.dto;
 
 import lombok.*;
 

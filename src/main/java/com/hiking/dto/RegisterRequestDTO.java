@@ -1,4 +1,4 @@
-package com.hiking.auth.dto.request;
+package com.hiking.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

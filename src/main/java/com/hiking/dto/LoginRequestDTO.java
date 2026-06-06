@@ -1,4 +1,4 @@
-package com.hiking.auth.dto.request;
+package com.hiking.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.*;

@@ -1,9 +1,9 @@
-package com.hiking.auth.service.impl;
+package com.hiking.service.impl;
 
-import com.hiking.auth.dto.request.LoginRequestDTO;
-import com.hiking.auth.dto.request.RegisterRequestDTO;
-import com.hiking.auth.dto.response.AuthResponseDTO;
-import com.hiking.auth.service.AuthService;
+import com.hiking.dto.LoginRequestDTO;
+import com.hiking.dto.RegisterRequestDTO;
+import com.hiking.dto.AuthResponseDTO;
+import com.hiking.service.AuthService;
 import com.hiking.exception.BadRequestException;
 import com.hiking.security.CustomUserDetails;
 import com.hiking.security.JwtService;

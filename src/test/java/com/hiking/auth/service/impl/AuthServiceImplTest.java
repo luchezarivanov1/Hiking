@@ -1,8 +1,8 @@
 package com.hiking.auth.service.impl;
 
-import com.hiking.auth.dto.request.LoginRequestDTO;
-import com.hiking.auth.dto.request.RegisterRequestDTO;
-import com.hiking.auth.dto.response.AuthResponseDTO;
+import com.hiking.dto.LoginRequestDTO;
+import com.hiking.dto.RegisterRequestDTO;
+import com.hiking.dto.AuthResponseDTO;
 import com.hiking.entity.Role;
 import com.hiking.entity.RoleType;
 import com.hiking.entity.User;
@@ -10,6 +10,7 @@ import com.hiking.exception.BadRequestException;
 import com.hiking.repository.RoleRepository;
 import com.hiking.repository.UserRepository;
 import com.hiking.security.JwtService;
+import com.hiking.service.impl.AuthServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
