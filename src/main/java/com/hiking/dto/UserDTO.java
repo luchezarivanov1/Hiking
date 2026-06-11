@@ -15,8 +15,6 @@ public class UserDTO {
     private String lastName;
     private Integer age;
     private String city;
-    private Double totalDistanceKm;
-    private Integer totalHikesCompleted;
     private List<String> roles;
     private int followerCount;
     private int followingCount;

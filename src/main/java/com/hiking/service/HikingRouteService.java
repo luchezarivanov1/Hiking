@@ -1,15 +1,12 @@
 package com.hiking.service;
 
 import com.hiking.dto.HikingRouteDTO;
-import com.hiking.dto.PhotoInfoDTO;
 import com.hiking.entity.*;
 import com.hiking.repository.HikingRouteRepository;
 import com.hiking.repository.MountainRepository;
-import com.hiking.repository.RoutePhotoRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -19,8 +16,7 @@ public class HikingRouteService {
 
     private final HikingRouteRepository routeRepo;
     private final MountainRepository mountainRepo;
-    private final RoutePhotoRepository photoRepo;
-    private final FileStorageService fileStorageService;
+    private final PhotoService photoService;
     private final FavoriteService favoriteService;
     private final ModelMapper mapper;
 
@@ -61,21 +57,6 @@ public class HikingRouteService {
         routeRepo.deleteById(id);
     }
 
-    public PhotoInfoDTO addPhoto(Long routeId, MultipartFile file, String description) {
-        var route = routeRepo.findById(routeId).orElseThrow(() -> new RuntimeException("Route not found"));
-        String url = fileStorageService.store(file, "routes");
-        RoutePhoto photo = new RoutePhoto();
-        photo.setHikingRoute(route);
-        photo.setUrl(url);
-        photo.setDescription(description);
-        RoutePhoto saved = photoRepo.save(photo);
-        return new PhotoInfoDTO(saved.getId(), saved.getUrl());
-    }
-
-    public void deletePhoto(Long photoId) {
-        photoRepo.deleteById(photoId);
-    }
-
     private HikingRouteDTO mapToDTO(HikingRoute route) {
         var dto = new HikingRouteDTO();
         dto.setId(route.getId());
@@ -86,8 +67,7 @@ public class HikingRouteService {
         dto.setDescription(route.getDescription());
         if (route.getMountain() != null) dto.setMountainId(route.getMountain().getId());
         if (route.getHuts() != null) dto.setHutIds(route.getHuts().stream().map(Hut::getId).toList());
-        dto.setPhotos(photoRepo.findByHikingRoute(route).stream()
-                .map(p -> new PhotoInfoDTO(p.getId(), p.getUrl())).toList());
+        dto.setPhotos(photoService.getForEntity("routes", route.getId()));
         if (route.getWaypoints() != null) dto.setWaypointIds(route.getWaypoints().stream().map(RouteWaypoint::getId).toList());
         dto.setFavorited(favoriteService.isFavorite("routes", route.getId()));
         return dto;

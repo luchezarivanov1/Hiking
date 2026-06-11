@@ -1,11 +1,8 @@
 package com.hiking.service;
 
 import com.hiking.dto.EventDTO;
-import com.hiking.dto.PhotoInfoDTO;
 import com.hiking.entity.Event;
-import com.hiking.entity.EventPhoto;
 import com.hiking.entity.User;
-import com.hiking.repository.EventPhotoRepository;
 import com.hiking.repository.EventRepository;
 import com.hiking.repository.UserRepository;
 import com.hiking.security.CustomUserDetails;
@@ -15,7 +12,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -24,9 +20,8 @@ import java.util.List;
 public class EventService {
 
     private final EventRepository repo;
-    private final EventPhotoRepository photoRepo;
     private final UserRepository userRepo;
-    private final FileStorageService fileStorageService;
+    private final PhotoService photoService;
     private final FavoriteService favoriteService;
     private final ModelMapper mapper;
 
@@ -60,21 +55,6 @@ public class EventService {
 
     public void delete(Long id) {
         repo.deleteById(id);
-    }
-
-    public PhotoInfoDTO addPhoto(Long eventId, MultipartFile file, String description) {
-        var event = repo.findById(eventId).orElseThrow(() -> new RuntimeException("Event not found"));
-        String url = fileStorageService.store(file, "events");
-        EventPhoto photo = new EventPhoto();
-        photo.setEvent(event);
-        photo.setUrl(url);
-        photo.setDescription(description);
-        EventPhoto saved = photoRepo.save(photo);
-        return new PhotoInfoDTO(saved.getId(), saved.getUrl());
-    }
-
-    public void deletePhoto(Long photoId) {
-        photoRepo.deleteById(photoId);
     }
 
     @Transactional
@@ -114,8 +94,7 @@ public class EventService {
         dto.setStartTime(event.getStartTime());
         dto.setEndTime(event.getEndTime());
         dto.setLocation(event.getLocation());
-        dto.setPhotos(photoRepo.findByEvent(event).stream()
-                .map(p -> new PhotoInfoDTO(p.getId(), p.getUrl())).toList());
+        dto.setPhotos(photoService.getForEntity("events", event.getId()));
         List<User> participants = event.getParticipants();
         dto.setParticipantCount(participants == null ? 0 : participants.size());
         dto.setJoined(isCurrentUserParticipant(participants));

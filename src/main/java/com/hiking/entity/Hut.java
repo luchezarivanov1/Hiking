@@ -39,5 +39,5 @@ public class Hut {
     private HikingRoute hikingRoute;
 
     @OneToMany(mappedBy = "hut", cascade = CascadeType.ALL)
-    private Set<HutPhoto> photos;
+    private Set<Photo> photos;
 }

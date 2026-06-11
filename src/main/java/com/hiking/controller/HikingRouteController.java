@@ -4,6 +4,7 @@ import com.hiking.dto.HikingRouteDTO;
 import com.hiking.dto.PhotoInfoDTO;
 import com.hiking.service.GpxService;
 import com.hiking.service.HikingRouteService;
+import com.hiking.service.PhotoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +20,7 @@ public class HikingRouteController {
 
     private final HikingRouteService routeService;
     private final GpxService gpxService;
+    private final PhotoService photoService;
 
     @GetMapping
     public List<HikingRouteDTO> getAllRoutes() { return routeService.getAllRoutes(); }
@@ -44,13 +46,13 @@ public class HikingRouteController {
             @PathVariable Long id,
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "description", required = false) String description) {
-        return ResponseEntity.ok(routeService.addPhoto(id, file, description));
+        return ResponseEntity.ok(photoService.addPhoto("routes", id, file, description));
     }
 
     @DeleteMapping("/{id}/photos/{photoId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletePhoto(@PathVariable Long id, @PathVariable Long photoId) {
-        routeService.deletePhoto(photoId);
+        photoService.deletePhoto(photoId);
         return ResponseEntity.noContent().build();
     }
 

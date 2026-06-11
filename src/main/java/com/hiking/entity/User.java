@@ -37,9 +37,6 @@ public class User {
     private Integer age;
     private String city;
 
-    private Double totalDistanceKm;
-    private Integer totalHikesCompleted;
-
     @Column(nullable = false, columnDefinition = "int default 0")
     private int failedLoginAttempts;
 

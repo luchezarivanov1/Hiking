@@ -22,7 +22,7 @@ public class Challenge {
     private Integer targetCount; // number of hikes, peaks, or landmarks
 
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
-    private Set<ChallengePhoto> photos;
+    private Set<Photo> photos;
 
     @ManyToMany(mappedBy = "challenges")
     private List<User> participants = new ArrayList<>();

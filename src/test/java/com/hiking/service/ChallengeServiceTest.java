@@ -1,11 +1,8 @@
 package com.hiking.service;
 
 import com.hiking.dto.ChallengeDTO;
-import com.hiking.dto.PhotoInfoDTO;
 import com.hiking.entity.Challenge;
-import com.hiking.entity.ChallengePhoto;
 import com.hiking.entity.User;
-import com.hiking.repository.ChallengePhotoRepository;
 import com.hiking.repository.ChallengeRepository;
 import com.hiking.repository.UserRepository;
 import com.hiking.support.SecurityContextTestUtils;
@@ -17,8 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,11 +30,9 @@ class ChallengeServiceTest {
     @Mock
     private ChallengeRepository repo;
     @Mock
-    private ChallengePhotoRepository photoRepo;
-    @Mock
     private UserRepository userRepo;
     @Mock
-    private FileStorageService fileStorageService;
+    private PhotoService photoService;
     @Mock
     private FavoriteService favoriteService;
     @Mock
@@ -70,7 +63,7 @@ class ChallengeServiceTest {
     }
 
     private void stubMapping() {
-        when(photoRepo.findByChallenge(challenge)).thenReturn(List.of());
+        when(photoService.getForEntity("challenges", 10L)).thenReturn(List.of());
         when(favoriteService.isFavorite("challenges", 10L)).thenReturn(false);
     }
 
@@ -149,28 +142,6 @@ class ChallengeServiceTest {
     }
 
     @Test
-    void addPhoto_storesFileAndPersistsPhoto() {
-        MultipartFile file = new MockMultipartFile("f", "p.jpg", "image/jpeg", "x".getBytes());
-        when(repo.findById(10L)).thenReturn(Optional.of(challenge));
-        when(fileStorageService.store(file, "challenges")).thenReturn("http://host/uploads/challenges/x.jpg");
-        ChallengePhoto saved = new ChallengePhoto();
-        saved.setId(99L);
-        saved.setUrl("http://host/uploads/challenges/x.jpg");
-        when(photoRepo.save(any(ChallengePhoto.class))).thenReturn(saved);
-
-        PhotoInfoDTO dto = challengeService.addPhoto(10L, file, "summit");
-
-        assertEquals(99L, dto.getId());
-        assertEquals("http://host/uploads/challenges/x.jpg", dto.getUrl());
-    }
-
-    @Test
-    void deletePhoto_delegatesToRepository() {
-        challengeService.deletePhoto(5L);
-        verify(photoRepo).deleteById(5L);
-    }
-
-    @Test
     void join_whenNotJoined_addsAndSavesUser() {
         SecurityContextTestUtils.authenticate(user, "ROLE_USER");
         when(repo.findById(10L)).thenReturn(Optional.of(challenge));
@@ -234,7 +205,7 @@ class ChallengeServiceTest {
         SecurityContextTestUtils.authenticate(user, "ROLE_USER");
         challenge.setParticipants(new ArrayList<>(List.of(user)));
         when(repo.findById(10L)).thenReturn(Optional.of(challenge));
-        when(photoRepo.findByChallenge(challenge)).thenReturn(List.of());
+        when(photoService.getForEntity("challenges", 10L)).thenReturn(List.of());
         when(favoriteService.isFavorite(eq("challenges"), eq(10L))).thenReturn(true);
 
         ChallengeDTO dto = challengeService.getById(10L);

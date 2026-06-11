@@ -1,11 +1,8 @@
 package com.hiking.service;
 
 import com.hiking.dto.EventDTO;
-import com.hiking.dto.PhotoInfoDTO;
 import com.hiking.entity.Event;
-import com.hiking.entity.EventPhoto;
 import com.hiking.entity.User;
-import com.hiking.repository.EventPhotoRepository;
 import com.hiking.repository.EventRepository;
 import com.hiking.repository.UserRepository;
 import com.hiking.support.SecurityContextTestUtils;
@@ -17,8 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +29,9 @@ class EventServiceTest {
     @Mock
     private EventRepository repo;
     @Mock
-    private EventPhotoRepository photoRepo;
-    @Mock
     private UserRepository userRepo;
     @Mock
-    private FileStorageService fileStorageService;
+    private PhotoService photoService;
     @Mock
     private FavoriteService favoriteService;
     @Mock
@@ -67,7 +60,7 @@ class EventServiceTest {
     }
 
     private void stubMapping() {
-        when(photoRepo.findByEvent(event)).thenReturn(List.of());
+        when(photoService.getForEntity("events", 20L)).thenReturn(List.of());
         when(favoriteService.isFavorite("events", 20L)).thenReturn(false);
     }
 
@@ -120,28 +113,6 @@ class EventServiceTest {
     void delete_delegates() {
         eventService.delete(20L);
         verify(repo).deleteById(20L);
-    }
-
-    @Test
-    void addPhoto_storesAndPersists() {
-        MultipartFile file = new MockMultipartFile("f", "p.jpg", "image/jpeg", "x".getBytes());
-        when(repo.findById(20L)).thenReturn(Optional.of(event));
-        when(fileStorageService.store(file, "events")).thenReturn("url");
-        EventPhoto saved = new EventPhoto();
-        saved.setId(7L);
-        saved.setUrl("url");
-        when(photoRepo.save(any(EventPhoto.class))).thenReturn(saved);
-
-        PhotoInfoDTO dto = eventService.addPhoto(20L, file, "desc");
-
-        assertEquals(7L, dto.getId());
-        assertEquals("url", dto.getUrl());
-    }
-
-    @Test
-    void deletePhoto_delegates() {
-        eventService.deletePhoto(3L);
-        verify(photoRepo).deleteById(3L);
     }
 
     @Test

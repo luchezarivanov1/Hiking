@@ -35,5 +35,5 @@ public class Mountain {
     private Set<Landmark> landmarks;
 
     @OneToMany(mappedBy = "mountain", cascade = CascadeType.ALL)
-    private Set<MountainPhoto> photos;
+    private Set<Photo> photos;
 }

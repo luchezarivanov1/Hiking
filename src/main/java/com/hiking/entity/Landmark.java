@@ -29,5 +29,5 @@ public class Landmark {
     private HikingRoute hikingRoute;
 
     @OneToMany(mappedBy = "landmark", cascade = CascadeType.ALL)
-    private Set<LandmarkPhoto> photos;
+    private Set<Photo> photos;
 }

@@ -33,5 +33,5 @@ public class Event {
     private List<User> participants = new ArrayList<>();
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
-    private Set<EventPhoto> photos;
+    private Set<Photo> photos;
 }

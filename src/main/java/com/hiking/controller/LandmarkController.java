@@ -3,6 +3,7 @@ package com.hiking.controller;
 import com.hiking.dto.LandmarkDTO;
 import com.hiking.dto.PhotoInfoDTO;
 import com.hiking.service.LandmarkService;
+import com.hiking.service.PhotoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +18,7 @@ import java.util.List;
 public class LandmarkController {
 
     private final LandmarkService landmarkService;
+    private final PhotoService photoService;
 
     @GetMapping
     public List<LandmarkDTO> getAllLandmarks() { return landmarkService.getAllLandmarks(); }
@@ -42,13 +44,13 @@ public class LandmarkController {
             @PathVariable Long id,
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "description", required = false) String description) {
-        return ResponseEntity.ok(landmarkService.addPhoto(id, file, description));
+        return ResponseEntity.ok(photoService.addPhoto("landmarks", id, file, description));
     }
 
     @DeleteMapping("/{id}/photos/{photoId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletePhoto(@PathVariable Long id, @PathVariable Long photoId) {
-        landmarkService.deletePhoto(photoId);
+        photoService.deletePhoto(photoId);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,10 +1,7 @@
 package com.hiking.service;
 
 import com.hiking.dto.MountainDTO;
-import com.hiking.dto.PhotoInfoDTO;
 import com.hiking.entity.Mountain;
-import com.hiking.entity.MountainPhoto;
-import com.hiking.repository.MountainPhotoRepository;
 import com.hiking.repository.MountainRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,14 +10,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,9 +23,7 @@ class MountainServiceTest {
     @Mock
     private MountainRepository mountainRepo;
     @Mock
-    private MountainPhotoRepository photoRepo;
-    @Mock
-    private FileStorageService fileStorageService;
+    private PhotoService photoService;
     @Mock
     private FavoriteService favoriteService;
     @Mock
@@ -52,7 +44,7 @@ class MountainServiceTest {
     }
 
     private void stubMapping() {
-        when(photoRepo.findByMountain(mountain)).thenReturn(List.of());
+        when(photoService.getForEntity("mountains", 3L)).thenReturn(List.of());
         when(favoriteService.isFavorite("mountains", 3L)).thenReturn(false);
     }
 
@@ -121,27 +113,5 @@ class MountainServiceTest {
     void delete_delegates() {
         mountainService.delete(3L);
         verify(mountainRepo).deleteById(3L);
-    }
-
-    @Test
-    void addPhoto_storesAndPersists() {
-        MultipartFile file = new MockMultipartFile("f", "p.jpg", "image/jpeg", "x".getBytes());
-        when(mountainRepo.findById(3L)).thenReturn(Optional.of(mountain));
-        when(fileStorageService.store(file, "mountains")).thenReturn("url");
-        MountainPhoto saved = new MountainPhoto();
-        saved.setId(8L);
-        saved.setUrl("url");
-        when(photoRepo.save(any(MountainPhoto.class))).thenReturn(saved);
-
-        PhotoInfoDTO dto = mountainService.addPhoto(3L, file, "view");
-
-        assertEquals(8L, dto.getId());
-        assertEquals("url", dto.getUrl());
-    }
-
-    @Test
-    void deletePhoto_delegates() {
-        mountainService.deletePhoto(2L);
-        verify(photoRepo).deleteById(2L);
     }
 }

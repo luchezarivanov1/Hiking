@@ -3,6 +3,7 @@ package com.hiking.controller;
 import com.hiking.dto.EventDTO;
 import com.hiking.dto.PhotoInfoDTO;
 import com.hiking.service.EventService;
+import com.hiking.service.PhotoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +18,7 @@ import java.util.List;
 public class EventController {
 
     private final EventService service;
+    private final PhotoService photoService;
 
     @GetMapping
     public List<EventDTO> getAll() { return service.getAll(); }
@@ -46,13 +48,13 @@ public class EventController {
             @PathVariable Long id,
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "description", required = false) String description) {
-        return ResponseEntity.ok(service.addPhoto(id, file, description));
+        return ResponseEntity.ok(photoService.addPhoto("events", id, file, description));
     }
 
     @DeleteMapping("/{id}/photos/{photoId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletePhoto(@PathVariable Long id, @PathVariable Long photoId) {
-        service.deletePhoto(photoId);
+        photoService.deletePhoto(photoId);
         return ResponseEntity.noContent().build();
     }
 

@@ -1,11 +1,8 @@
 package com.hiking.service;
 
 import com.hiking.dto.ChallengeDTO;
-import com.hiking.dto.PhotoInfoDTO;
 import com.hiking.entity.Challenge;
-import com.hiking.entity.ChallengePhoto;
 import com.hiking.entity.User;
-import com.hiking.repository.ChallengePhotoRepository;
 import com.hiking.repository.ChallengeRepository;
 import com.hiking.repository.UserRepository;
 import com.hiking.security.CustomUserDetails;
@@ -15,7 +12,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -24,9 +20,8 @@ import java.util.List;
 public class ChallengeService {
 
     private final ChallengeRepository repo;
-    private final ChallengePhotoRepository photoRepo;
     private final UserRepository userRepo;
-    private final FileStorageService fileStorageService;
+    private final PhotoService photoService;
     private final FavoriteService favoriteService;
     private final ModelMapper mapper;
 
@@ -59,21 +54,6 @@ public class ChallengeService {
 
     public void delete(Long id) {
         repo.deleteById(id);
-    }
-
-    public PhotoInfoDTO addPhoto(Long challengeId, MultipartFile file, String description) {
-        var challenge = repo.findById(challengeId).orElseThrow(() -> new RuntimeException("Challenge not found"));
-        String url = fileStorageService.store(file, "challenges");
-        ChallengePhoto photo = new ChallengePhoto();
-        photo.setChallenge(challenge);
-        photo.setUrl(url);
-        photo.setDescription(description);
-        ChallengePhoto saved = photoRepo.save(photo);
-        return new PhotoInfoDTO(saved.getId(), saved.getUrl());
-    }
-
-    public void deletePhoto(Long photoId) {
-        photoRepo.deleteById(photoId);
     }
 
     @Transactional
@@ -112,8 +92,7 @@ public class ChallengeService {
         dto.setDescription(challenge.getDescription());
         dto.setType(challenge.getType());
         dto.setTargetCount(challenge.getTargetCount());
-        dto.setPhotos(photoRepo.findByChallenge(challenge).stream()
-                .map(p -> new PhotoInfoDTO(p.getId(), p.getUrl())).toList());
+        dto.setPhotos(photoService.getForEntity("challenges", challenge.getId()));
         List<User> participants = challenge.getParticipants();
         dto.setParticipantCount(participants == null ? 0 : participants.size());
         dto.setJoined(isCurrentUserParticipant(participants));

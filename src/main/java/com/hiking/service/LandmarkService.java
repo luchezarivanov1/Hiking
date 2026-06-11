@@ -1,19 +1,13 @@
 package com.hiking.service;
 
 import com.hiking.dto.LandmarkDTO;
-import com.hiking.dto.PhotoInfoDTO;
-import com.hiking.entity.HikingRoute;
 import com.hiking.entity.Landmark;
-import com.hiking.entity.LandmarkPhoto;
-import com.hiking.entity.Mountain;
 import com.hiking.repository.HikingRouteRepository;
-import com.hiking.repository.LandmarkPhotoRepository;
 import com.hiking.repository.LandmarkRepository;
 import com.hiking.repository.MountainRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -24,8 +18,7 @@ public class LandmarkService {
     private final LandmarkRepository landmarkRepo;
     private final MountainRepository mountainRepo;
     private final HikingRouteRepository routeRepo;
-    private final LandmarkPhotoRepository photoRepo;
-    private final FileStorageService fileStorageService;
+    private final PhotoService photoService;
     private final FavoriteService favoriteService;
     private final ModelMapper mapper;
 
@@ -76,21 +69,6 @@ public class LandmarkService {
         landmarkRepo.deleteById(id);
     }
 
-    public PhotoInfoDTO addPhoto(Long landmarkId, MultipartFile file, String description) {
-        var landmark = landmarkRepo.findById(landmarkId).orElseThrow(() -> new RuntimeException("Landmark not found"));
-        String url = fileStorageService.store(file, "landmarks");
-        LandmarkPhoto photo = new LandmarkPhoto();
-        photo.setLandmark(landmark);
-        photo.setUrl(url);
-        photo.setDescription(description);
-        LandmarkPhoto saved = photoRepo.save(photo);
-        return new PhotoInfoDTO(saved.getId(), saved.getUrl());
-    }
-
-    public void deletePhoto(Long photoId) {
-        photoRepo.deleteById(photoId);
-    }
-
     private LandmarkDTO mapToDTO(Landmark landmark) {
         var dto = new LandmarkDTO();
         dto.setId(landmark.getId());
@@ -101,8 +79,7 @@ public class LandmarkService {
         dto.setDescription(landmark.getDescription());
         if (landmark.getMountain() != null) dto.setMountainId(landmark.getMountain().getId());
         if (landmark.getHikingRoute() != null) dto.setHikingRouteId(landmark.getHikingRoute().getId());
-        dto.setPhotos(photoRepo.findByLandmark(landmark).stream()
-                .map(p -> new PhotoInfoDTO(p.getId(), p.getUrl())).toList());
+        dto.setPhotos(photoService.getForEntity("landmarks", landmark.getId()));
         dto.setFavorited(favoriteService.isFavorite("landmarks", landmark.getId()));
         return dto;
     }

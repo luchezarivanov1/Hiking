@@ -1,13 +1,10 @@
 package com.hiking.service;
 
 import com.hiking.dto.LandmarkDTO;
-import com.hiking.dto.PhotoInfoDTO;
 import com.hiking.entity.Landmark;
-import com.hiking.entity.LandmarkPhoto;
 import com.hiking.entity.LandmarkType;
 import com.hiking.entity.Mountain;
 import com.hiking.repository.HikingRouteRepository;
-import com.hiking.repository.LandmarkPhotoRepository;
 import com.hiking.repository.LandmarkRepository;
 import com.hiking.repository.MountainRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,14 +14,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,9 +31,7 @@ class LandmarkServiceTest {
     @Mock
     private HikingRouteRepository routeRepo;
     @Mock
-    private LandmarkPhotoRepository photoRepo;
-    @Mock
-    private FileStorageService fileStorageService;
+    private PhotoService photoService;
     @Mock
     private FavoriteService favoriteService;
     @Mock
@@ -59,7 +51,7 @@ class LandmarkServiceTest {
     }
 
     private void stubMapping() {
-        when(photoRepo.findByLandmark(landmark)).thenReturn(List.of());
+        when(photoService.getForEntity("landmarks", 2L)).thenReturn(List.of());
         when(favoriteService.isFavorite("landmarks", 2L)).thenReturn(false);
     }
 
@@ -132,26 +124,5 @@ class LandmarkServiceTest {
     void delete_delegates() {
         landmarkService.delete(2L);
         verify(landmarkRepo).deleteById(2L);
-    }
-
-    @Test
-    void addPhoto_storesAndPersists() {
-        MultipartFile file = new MockMultipartFile("f", "p.jpg", "image/jpeg", "x".getBytes());
-        when(landmarkRepo.findById(2L)).thenReturn(Optional.of(landmark));
-        when(fileStorageService.store(file, "landmarks")).thenReturn("url");
-        LandmarkPhoto saved = new LandmarkPhoto();
-        saved.setId(12L);
-        saved.setUrl("url");
-        when(photoRepo.save(any(LandmarkPhoto.class))).thenReturn(saved);
-
-        PhotoInfoDTO dto = landmarkService.addPhoto(2L, file, "falls");
-
-        assertEquals(12L, dto.getId());
-    }
-
-    @Test
-    void deletePhoto_delegates() {
-        landmarkService.deletePhoto(1L);
-        verify(photoRepo).deleteById(1L);
     }
 }

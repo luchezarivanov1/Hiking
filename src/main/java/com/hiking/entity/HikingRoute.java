@@ -38,7 +38,7 @@ public class HikingRoute {
     private Set<Hut> huts;
 
     @OneToMany(mappedBy = "hikingRoute", cascade = CascadeType.ALL)
-    private Set<RoutePhoto> photos;
+    private Set<Photo> photos;
 
     @OneToMany(mappedBy = "hikingRoute", cascade = CascadeType.ALL)
     private Set<RouteWaypoint> waypoints;

@@ -48,8 +48,6 @@ public class UserService {
         user.setEmail(dto.getEmail());
         user.setExperienceLevel(dto.getExperienceLevel());
         user.setProfileImageUrl(dto.getProfileImageUrl());
-        user.setTotalDistanceKm(dto.getTotalDistanceKm());
-        user.setTotalHikesCompleted(dto.getTotalHikesCompleted());
 
         if (dto.getRoles() != null) {
             List<Role> roles = dto.getRoles().stream()
